@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/style/index.css">
+
+    <link rel="stylesheet" href="/codemirror/theme/3024-day.css">
+    <link rel="stylesheet" href="/codemirror/theme/3024-night.css">
+    <link rel="stylesheet" href="/codemirror/theme/abbott.css">
+    <link rel="stylesheet" href="/codemirror/theme/abcdef.css">
+    <link rel="stylesheet" href="/codemirror/theme/ambiance-mobile.css">
+    <link rel="stylesheet" href="/codemirror/theme/ambiance.css">
+    <link rel="stylesheet" href="/codemirror/theme/ayu-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/ayu-mirage.css">
+    <link rel="stylesheet" href="/codemirror/theme/base16-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/base16-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/bespin.css">
+    <link rel="stylesheet" href="/codemirror/theme/blackboard.css">
+    <link rel="stylesheet" href="/codemirror/theme/cobalt.css">
+    <link rel="stylesheet" href="/codemirror/theme/colorforth.css">
+    <link rel="stylesheet" href="/codemirror/theme/darcula.css">
+    <link rel="stylesheet" href="/codemirror/theme/dracula.css">
+    <link rel="stylesheet" href="/codemirror/theme/duotone-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/duotone-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/eclipse.css">
+    <link rel="stylesheet" href="/codemirror/theme/elegant.css">
+    <link rel="stylesheet" href="/codemirror/theme/erlang-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/gruvbox-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/hopscotch.css">
+    <link rel="stylesheet" href="/codemirror/theme/icecoder.css">
+    <link rel="stylesheet" href="/codemirror/theme/idea.css">
+    <link rel="stylesheet" href="/codemirror/theme/isotope.css">
+    <link rel="stylesheet" href="/codemirror/theme/juejin.css">
+    <link rel="stylesheet" href="/codemirror/theme/lesser-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/liquibyte.css">
+    <link rel="stylesheet" href="/codemirror/theme/lucario.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-darker.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-ocean.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-palenight.css">
+    <link rel="stylesheet" href="/codemirror/theme/material.css">
+    <link rel="stylesheet" href="/codemirror/theme/mbo.css">
+    <link rel="stylesheet" href="/codemirror/theme/mdn-like.css">
+    <link rel="stylesheet" href="/codemirror/theme/midnight.css">
+    <link rel="stylesheet" href="/codemirror/theme/monokai.css">
+    <link rel="stylesheet" href="/codemirror/theme/moxer.css">
+    <link rel="stylesheet" href="/codemirror/theme/neat.css">
+    <link rel="stylesheet" href="/codemirror/theme/neo.css">
+    <link rel="stylesheet" href="/codemirror/theme/night.css">
+    <link rel="stylesheet" href="/codemirror/theme/nord.css">
+    <link rel="stylesheet" href="/codemirror/theme/oceanic-next.css">
+    <link rel="stylesheet" href="/codemirror/theme/panda-syntax.css">
+    <link rel="stylesheet" href="/codemirror/theme/paraiso-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/paraiso-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/pastel-on-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/railscasts.css">
+    <link rel="stylesheet" href="/codemirror/theme/rubyblue.css">
+    <link rel="stylesheet" href="/codemirror/theme/seti.css">
+    <link rel="stylesheet" href="/codemirror/theme/shadowfox.css">
+    <link rel="stylesheet" href="/codemirror/theme/solarized.css">
+    <link rel="stylesheet" href="/codemirror/theme/ssms.css">
+    <link rel="stylesheet" href="/codemirror/theme/the-matrix.css">
+    <link rel="stylesheet" href="/codemirror/theme/tomorrow-night-bright.css">
+    <link rel="stylesheet" href="/codemirror/theme/tomorrow-night-eighties.css">
+    <link rel="stylesheet" href="/codemirror/theme/ttcn.css">
+    <link rel="stylesheet" href="/codemirror/theme/twilight.css">
+    <link rel="stylesheet" href="/codemirror/theme/vibrant-ink.css">
+    <link rel="stylesheet" href="/codemirror/theme/xq-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/xq-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/yeti.css">
+    <link rel="stylesheet" href="/codemirror/theme/yonce.css">
+    <link rel="stylesheet" href="/codemirror/theme/zenburn.css">
+
+    <link rel="stylesheet" href="/codemirror/lib/codemirror.css">
+    <link rel="stylesheet" href="/codemirror/theme/dracula.css">
+    <link rel="stylesheet" href="/codemirror/theme/darcula.css">
+    <link rel="stylesheet" href="/codemirror/theme/ayu-mirage.css">
+    <link rel="stylesheet" href="/codemirror/addon/fold/foldgutter.css">
+    <link rel="stylesheet" href="/codemirror/addon/hint/show-hint.css">
+    <link rel="stylesheet" href="/codemirror/addon/lint/lint.css">
+    <script src="/codemirror/lib/codemirror.js"></script>
+    <script src="/codemirror/mode/javascript/javascript.js"></script>
+    <script src="/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="/codemirror/addon/edit/closebrackets.js"></script>
+    <script src="/codemirror/addon/edit/trailingspace.js"></script>
+    <script src="/codemirror/addon/edit/continuelist.js"></script>
+    <script src="/codemirror/addon/display/placeholder.js"></script>
+    <script src="/codemirror/addon/comment/continuecomment.js"></script>
+    <script src="/codemirror/addon/comment/comment.js"></script>
+    <script src="/codemirror/addon/fold/brace-fold.js"></script>
+    <script src="/codemirror/addon/fold/comment-fold.js"></script>
+    <script src="/codemirror/addon/fold/foldcode.js"></script>
+    <script src="/codemirror/addon/fold/foldgutter.js"></script>
+    <script src="/codemirror/addon/fold/indent-fold.js"></script>
+    <script src="/codemirror/addon/hint/show-hint.js"></script>
+    <script src="/codemirror/addon/hint/javascript-hint.js"></script>
+    <script src="/codemirror/addon/hint/anyword-hint.js"></script>
+    <script src="/codemirror/addon/lint/lint.js"></script>
+    <script src="/codemirror/addon/lint/javascript-lint.js"></script>
+    <script src="/codemirror/addon/selection/active-line.js"></script>
+    <link rel="stylesheet" href="/codemirror/addon/dialog/dialog.css">
+    <link rel="stylesheet" href="/codemirror/addon/search/matchesonscrollbar.css">
+    <script src="/codemirror/addon/dialog/dialog.js"></script>
+    <script src="/codemirror/addon/search/searchcursor.js"></script>
+    <script src="/codemirror/addon/search/search.js"></script>
+    <script src="/codemirror/addon/scroll/annotatescrollbar.js"></script>
+    <script src="/codemirror/addon/search/matchesonscrollbar.js"></script>
+    <script src="/src/editor.js"></script>
+    <link rel="stylesheet" href="/style/sync.css">
+
+    <title>JoinCode - Together</title>
+</head>
+<body>
+    <!-- Take Name Modal -->
+    <div class="name-modal" id="name.modal">
+        <div class="name-modal-content">
+            <h3>Enter your name:</h3>
+            <div style="display: flex; flex-direction: column;">
+                <input placeholder="Name..." type="text" id="name.field" maxlength="20">
+                <small id="name.tip"></small>
+            </div>
+            <div class="btn" id="name.btn">Ready!</div>
+        </div>
+    </div>
+    <!-- Local CodeMirror editor -->
+    <div class="wrapper" id="wrapper">
+        <div class="editor" id="my-editor">
+            <span id="editor"></span>
+        </div>
+    </div>
+    <!-- Bottom Information Bar -->
+    <span id="bottom-bar">
+        <!-- Left side buttons -->
+        <span class="left">
+            <!-- Language Information -->
+            <span id="language-info"><%- name %>'s Lesson</span>
+        </span>
+        <!-- Right side buttons -->
+        <span class="right">
+            <span id="users-info">Only you there</span>
+        </span>
+    </span>
+
+    <!-- <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
+    <script>
+
+        const extension = 'js';
+
+        const config = {
+            js: {
+                name: 'JavaScript',
+                commentUnit: '/*'
+            }
+        }
+
+        const changeLanguage = () => {
+            if(!config[extension]) return;
+            if(!config[extension].name) return;
+            editor.setOption('mode', config[extension].name.toLowerCase());
+            document.getElementById('language-info').innerText = config[extension].name;
+        }
+
+        console.log('<%- theme %>')
+
+        const editor = new Editor(document.getElementById('editor'), config, extension, false, {
+            theme: '<%- theme %>'
+        })
+        const remoteEditors = {}
+
+    </script>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        function addUserEditor(id, name, isOwner, text = '', amIOwner) {
+            console.log(amIOwner)
+            if(!isOwner && !amIOwner) return;
+
+            const newEditor = document.createElement('div')
+            newEditor.className = 'editor'
+            newEditor.dataset.id = id;
+            const editor_body = document.createElement('span')
+            newEditor.appendChild(editor_body)
+            document.getElementById('wrapper').appendChild(newEditor)
+            remoteEditors[id] = new RemoteEditor(editor_body, config, extension, {
+                timeout: 0
+            }, {
+                theme: '<%- theme %>'
+            })
+            remoteEditors[id].setValue(text)
+
+            const name_field = document.createElement('label')
+            name_field.textContent = name
+            name_field.style.fontSize = '12px'
+            name_field.style.position = 'absolute'
+            name_field.style.bottom = '30px'
+            name_field.style.right = '10px'
+            newEditor.appendChild(name_field)
+        }
+
+        function deleteUser(id) {
+            const editor = document.getElementById('wrapper').querySelector(`div[data-id="${id}"]`)
+            if(!editor) return console.log(`Unexpected ${id} editor!`)
+            document.getElementById('wrapper').removeChild(editor)
+        }
+
+        const url = location.href[location.href.length - 1] === '/' ? location.href.slice(0, location.href.length-1) : location.href
+        const id = url.split('/').pop()
+
+        console.log(id)
+
+        var amIOwner = null
+
+        if(id) {
+            function setup() {
+                const socket = io();
+                const name = document.getElementById('name.field').value
+                document.getElementById('my-editor').style.border = '3px solid orange'
+                socket.emit('join-room', {
+                    id,
+                    name
+                })
+                socket.on('executed-code', ({ sandbox, status, name: exeName, result }) => {
+                    console.log(`Executed code by ${exeName} with ${status} status`, result)
+                    console.log(sandbox)
+                })
+                socket.on('joined-room', ({ status, roomID, userID, members }) => {
+                    if(status)
+                    {
+                        if(amIOwner === null) amIOwner = {
+                            is: members.length <= 0,
+                        }
+                        console.log(amIOwner)
+                        members.forEach(member => {
+                            addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner.is)
+                        })
+                        editor.editor.on('change', function (cm) {
+                            socket.emit('text-change', {
+                                text: cm.getValue(),
+                                name: name,
+                                id: roomID,
+                                user: userID
+                            })
+                        })
+                    }
+                    else
+                        console.log(`No such room: ${roomID}!`)
+                })
+                socket.on('user-join', ({ id, name }) => {
+                    console.log(`New user connected ${name} (${id})`)
+                    addUserEditor(id, name, false, '', amIOwner.is ? amIOwner.is : false)
+                })
+                socket.on('user-leave', ({id, name, isOwner}) => {
+                    console.log(`User ${name} (${id}) leaved!`)
+                    if(isOwner) window.location.pathname = '/'
+                    deleteUser(id)
+                })
+                window.onbeforeunload = function() {
+                    socket.emit('disconnect')
+                }
+                socket.on('text-change', ({ text, name, id }) => {
+                    if(!remoteEditors[id]) console.log(`No such user ${name} (${id})`)
+                    else {
+                        remoteEditors[id].setValue(text)
+                    }
+                })
+            }
+            document.getElementById('name.btn').onclick = function(e) {
+                e.preventDefault()
+                if(!document.getElementById('name.field').value){
+                    document.getElementById('name.field').style.border = '1px solid crimson'
+                    document.getElementById('name.tip').textContent = 'Enter a correct name...'
+                    setTimeout(function() {
+                        document.getElementById('name.tip').textContent = ''
+                        document.getElementById('name.field').style.border = '0'
+                    }, 5000)
+                    return;
+                }
+                document.getElementById('name.modal').style.display = 'none'
+                setup()
+            }
+        }
+    </script>
+</body>
+</html>

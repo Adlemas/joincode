@@ -9,122 +9,56 @@ body {
   width: 100%;
   height: 100%;
   overflow-y: hidden;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.wrapper {
+  width: 100%;
+  height: calc(100% - 20px);
+  display: flex;
+  flex-wrap: wrap;
+  overflow-y: auto;
+}
+
+.editor {
+  flex: 1;
+  min-width: 50%;
+  min-height: 50%;
+  font-family: DejaVu Sans Mono, monospace;
+  font-size: 15px;
+  background-color: #242430;
+  color: #ddd;
+
+  position: relative;
+}
+/* 
+#my-editor {
+  min-width: 100%;
+} */
+
+.editor > h4 {
+  margin: 5px;
 }
 
 .CodeMirror {
+  height: 100%;
   width: 100%;
-  height: calc(100% - 35px);
-  /* font-family: Consolas, "Courier New", monospace; */
-  font-family: DejaVu Sans Mono, monospace;
-  font-size: 15px;
 }
 
 .CodeMirror-cursor {
   border-left: 2px solid dodgerblue !important;
 }
 
+.CodeMirror-focused {
+  transition: 1s !important;
+}
+
+/* 
 .CodeMirror-linenumbers {
-  padding-right: 20px;
-}
-
-/* Command pallete styles. */
-
-#command-pallete {
-  width: 60%;
-  padding: 5px;
-  background-color: #1e2727;
-  display: flex;
-  flex-direction: column;
-  position: absolute;
-  top: 20px;
-  left: calc(50% - 70% / 2);
-  z-index: 50;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-}
-
-#command-pallete > input {
-  width: 100%;
-  background-color: #181f1f;
-  border: 1px solid rgba(100, 100, 100, 0.5);
-  height: 35px;
-  display: flex;
-  align-items: center;
-  padding-left: 5px;
-  color: #ddd;
-  font-family: "Roboto", sans-serif;
-  font-weight: 300;
-  outline: 0;
-}
-
-#command-pallete > ul {
-  list-style: none;
-  color: #aaa;
-  width: 100%;
-}
-
-#command-pallete > ul > li {
-  font-family: "Roboto", sans-serif;
-  font-weight: 300;
-  width: 100%;
-  height: 30px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
-  white-space: pre-wrap;
-}
-
-#command-pallete > ul > li:hover {
-  background-color: #6464641a;
-}
-
-#command-pallete > ul > hr {
-  margin: 10px 0;
-}
-
-/* TabManager */
-
-#tab-manager {
-  width: 100%;
-  height: 35px;
-  background-color: #242430;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-#tab-manager > * {
-  padding-left: 10px;
-  border-right: 2px solid #1c2424;
-  height: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  min-width: 100px;
-  font-family: "Roboto", sans-serif;
-  color: #ccc;
-}
-
-#tab-manager > * > * {
-  margin-right: 10px;
-  font-size: small;
-}
-
-/* Close button */
-#tab-manager > * > *:last-child {
-  font-size: larger;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-#tab-manager > * > *:last-child:hover {
-  color: #eee;
-}
-
-#tab-manager > * > *:first-child {
-  font-size: small;
-}
+  /* padding-right: 20px; 
+} */
 
 /* Bottom bar styles. */
 
@@ -135,9 +69,9 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
+  /* position: absolute;
   bottom: 0;
-  left: 0;
+  left: 0; */
   /* #242430
      #1c2424 */
   background-color: #242430;
@@ -166,4 +100,62 @@ body {
 
 #bottom-bar > span > span:hover {
   background-color: rgba(100, 100, 100, 0.1);
+}
+
+.name-modal {
+  width: 100%;
+  height: 100%;
+  background: rgba(100, 100, 100, 0.5);
+  z-index: 10;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.name-modal-content {
+  width: 250px;
+  height: 250px;
+  border-radius: 10px;
+  background: #fefefe;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-direction: column;
+  padding: 20px;
+  font-family: "Roboto", sans-serif;
+}
+
+.name-modal-content input {
+  width: 200px;
+  height: 40px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+  display: flex;
+  align-items: center;
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-family: "Roboto", sans-serif;
+}
+
+.name-modal-content .btn {
+  width: 200px;
+  height: 40px;
+  border-radius: 5px;
+  background: dodgerblue;
+  color: #fefefe;
+  font-weight: 500;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 700px) {
+  .editor {
+    min-width: 100%;
+  }
 }

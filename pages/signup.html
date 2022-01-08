@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/index.css">
+    <link rel="stylesheet" href="/style/signup.css">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>JoinCode - Sign Up</title>
+</head>
+<body>
+    <div class="left-side">
+        <div class="sign-up">
+            <h2 style="margin-bottom: 40px;">Sign Up</h2>
+            <form style="margin-bottom: 50px;" class="simple-form" id="signup.form">
+                <input type="text" placeholder="Enter username..." name="name" id="username.field" required>
+                <small id="username.tip.field" class="error-tip"></small>
+                <input type="email" placeholder="Enter email..." name="email" id="email.field" required>
+                <small id="email.tip.field" class="error-tip"></small>
+                <input type="password" placeholder="Enter password..." name="password" id="password.field" required>
+                <input type="hidden" name="type" value="by-hand">
+                <span style="margin: 10px 0; display: flex; flex-direction: row;">
+                    <input style="margin-right: 10px;" type="checkbox" name="agreement" id="agreement.checkbox" required>
+                    <small>I agree all statements of <a href="/terms" target="_blank">Terms of service</a> and <a target="_blank" href="/privacy-policy">Privacy Policy</a>.</small>
+                </span>
+                <button>
+                    Sign Up
+                </button>
+                <small id="tip.field"></small>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function signUpRequest(e) {
+            e.preventDefault()
+            document.getElementById('tip.field').innerText = 'Loading...'
+            fetch('/signup',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: document.getElementById('username.field').value,
+                    email: document.getElementById('email.field').value,
+                    password: document.getElementById('password.field').value,
+                    type: 'by-hand'
+                })
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.status === true)
+                {
+                    document.getElementById('tip.field').innerText = 'Success...'
+                    window.location.pathname = '/'
+                }
+                else
+                {
+                    if(json.reason === 'username-exists')
+                    {
+                        document.getElementById('username.field').style.border = '1px solid crimson'
+                        document.getElementById('username.field').oninput = function(e) {
+                            e.target.style.border = '1px solid #ccc';
+                            document.getElementById('username.tip.field').innerText = ''
+                        }
+                        document.getElementById('username.tip.field').innerText = 'This username is already exists.'
+                    }
+                    else if (json.reason === 'email-exists') {
+                        document.getElementById('email.field').style.border = '1px solid crimson'
+                        document.getElementById('email.field').oninput = function (e) {
+                            e.target.style.border = '1px solid #ccc';
+                            document.getElementById('email.tip.field').innerText = ''
+                        }
+                        document.getElementById('email.tip.field').innerText = 'This email is already exists.'
+                    }
+                    else if(json.reason === 'no-data')
+                        document.getElementById('tip.field').innerText = 'Incorrect data passed...'
+                    else if (json.reason === 'serve-error')
+                        document.getElementById('tip.field').innerText = 'Server error! Try later...'
+                }
+                console.log(json)
+                document.getElementById('tip.field').innerText = ''
+            })
+            .catch(err => console.log(err));
+        }
+
+        document.getElementById('signup.form').onsubmit = signUpRequest
+    </script>
+    
+</body>
+</html>

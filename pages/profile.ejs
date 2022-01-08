@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/style/index.css">
+    <link rel="stylesheet" href="/style/profile.css">
+
+    <!-- Codemirror -->
+    <link rel="stylesheet" href="/codemirror/lib/codemirror.css">
+
+    <link rel="stylesheet" href="/codemirror/theme/3024-day.css">
+    <link rel="stylesheet" href="/codemirror/theme/3024-night.css">
+    <link rel="stylesheet" href="/codemirror/theme/abbott.css">
+    <link rel="stylesheet" href="/codemirror/theme/abcdef.css">
+    <link rel="stylesheet" href="/codemirror/theme/ambiance-mobile.css">
+    <link rel="stylesheet" href="/codemirror/theme/ambiance.css">
+    <link rel="stylesheet" href="/codemirror/theme/ayu-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/ayu-mirage.css">
+    <link rel="stylesheet" href="/codemirror/theme/base16-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/base16-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/bespin.css">
+    <link rel="stylesheet" href="/codemirror/theme/blackboard.css">
+    <link rel="stylesheet" href="/codemirror/theme/cobalt.css">
+    <link rel="stylesheet" href="/codemirror/theme/colorforth.css">
+    <link rel="stylesheet" href="/codemirror/theme/darcula.css">
+    <link rel="stylesheet" href="/codemirror/theme/dracula.css">
+    <link rel="stylesheet" href="/codemirror/theme/duotone-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/duotone-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/eclipse.css">
+    <link rel="stylesheet" href="/codemirror/theme/elegant.css">
+    <link rel="stylesheet" href="/codemirror/theme/erlang-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/gruvbox-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/hopscotch.css">
+    <link rel="stylesheet" href="/codemirror/theme/icecoder.css">
+    <link rel="stylesheet" href="/codemirror/theme/idea.css">
+    <link rel="stylesheet" href="/codemirror/theme/isotope.css">
+    <link rel="stylesheet" href="/codemirror/theme/juejin.css">
+    <link rel="stylesheet" href="/codemirror/theme/lesser-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/liquibyte.css">
+    <link rel="stylesheet" href="/codemirror/theme/lucario.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-darker.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-ocean.css">
+    <link rel="stylesheet" href="/codemirror/theme/material-palenight.css">
+    <link rel="stylesheet" href="/codemirror/theme/material.css">
+    <link rel="stylesheet" href="/codemirror/theme/mbo.css">
+    <link rel="stylesheet" href="/codemirror/theme/mdn-like.css">
+    <link rel="stylesheet" href="/codemirror/theme/midnight.css">
+    <link rel="stylesheet" href="/codemirror/theme/monokai.css">
+    <link rel="stylesheet" href="/codemirror/theme/moxer.css">
+    <link rel="stylesheet" href="/codemirror/theme/neat.css">
+    <link rel="stylesheet" href="/codemirror/theme/neo.css">
+    <link rel="stylesheet" href="/codemirror/theme/night.css">
+    <link rel="stylesheet" href="/codemirror/theme/nord.css">
+    <link rel="stylesheet" href="/codemirror/theme/oceanic-next.css">
+    <link rel="stylesheet" href="/codemirror/theme/panda-syntax.css">
+    <link rel="stylesheet" href="/codemirror/theme/paraiso-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/paraiso-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/pastel-on-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/railscasts.css">
+    <link rel="stylesheet" href="/codemirror/theme/rubyblue.css">
+    <link rel="stylesheet" href="/codemirror/theme/seti.css">
+    <link rel="stylesheet" href="/codemirror/theme/shadowfox.css">
+    <link rel="stylesheet" href="/codemirror/theme/solarized.css">
+    <link rel="stylesheet" href="/codemirror/theme/ssms.css">
+    <link rel="stylesheet" href="/codemirror/theme/the-matrix.css">
+    <link rel="stylesheet" href="/codemirror/theme/tomorrow-night-bright.css">
+    <link rel="stylesheet" href="/codemirror/theme/tomorrow-night-eighties.css">
+    <link rel="stylesheet" href="/codemirror/theme/ttcn.css">
+    <link rel="stylesheet" href="/codemirror/theme/twilight.css">
+    <link rel="stylesheet" href="/codemirror/theme/vibrant-ink.css">
+    <link rel="stylesheet" href="/codemirror/theme/xq-dark.css">
+    <link rel="stylesheet" href="/codemirror/theme/xq-light.css">
+    <link rel="stylesheet" href="/codemirror/theme/yeti.css">
+    <link rel="stylesheet" href="/codemirror/theme/yonce.css">
+    <link rel="stylesheet" href="/codemirror/theme/zenburn.css">
+    
+    <link rel="stylesheet" href="/codemirror/theme/ayu-mirage.css">
+    <link rel="stylesheet" href="/codemirror/addon/fold/foldgutter.css">
+    <link rel="stylesheet" href="/codemirror/addon/hint/show-hint.css">
+    <link rel="stylesheet" href="/codemirror/addon/lint/lint.css">
+    <script src="/codemirror/lib/codemirror.js"></script>
+    <script src="/codemirror/mode/javascript/javascript.js"></script>
+    <script src="/codemirror/addon/edit/matchbrackets.js"></script>
+    <script src="/codemirror/addon/edit/closebrackets.js"></script>
+    <script src="/codemirror/addon/edit/trailingspace.js"></script>
+    <script src="/codemirror/addon/edit/continuelist.js"></script>
+    <script src="/codemirror/addon/display/placeholder.js"></script>
+    <script src="/codemirror/addon/comment/continuecomment.js"></script>
+    <script src="/codemirror/addon/comment/comment.js"></script>
+    <script src="/codemirror/addon/fold/brace-fold.js"></script>
+    <script src="/codemirror/addon/fold/comment-fold.js"></script>
+    <script src="/codemirror/addon/fold/foldcode.js"></script>
+    <script src="/codemirror/addon/fold/foldgutter.js"></script>
+    <script src="/codemirror/addon/fold/indent-fold.js"></script>
+    <script src="/codemirror/addon/hint/show-hint.js"></script>
+    <script src="/codemirror/addon/hint/javascript-hint.js"></script>
+    <script src="/codemirror/addon/hint/anyword-hint.js"></script>
+    <script src="/codemirror/addon/lint/lint.js"></script>
+    <script src="/codemirror/addon/lint/javascript-lint.js"></script>
+    <script src="/codemirror/addon/selection/active-line.js"></script>
+    <link rel="stylesheet" href="/codemirror/addon/dialog/dialog.css">
+    <link rel="stylesheet" href="/codemirror/addon/search/matchesonscrollbar.css">
+    <script src="/codemirror/addon/dialog/dialog.js"></script>
+    <script src="/codemirror/addon/search/searchcursor.js"></script>
+    <script src="/codemirror/addon/search/search.js"></script>
+    <script src="/codemirror/addon/scroll/annotatescrollbar.js"></script>
+    <script src="/codemirror/addon/search/matchesonscrollbar.js"></script>
+
+    <script src="/src/editor.js"></script>
+    <!-- --- Codemirror -- -->
+
+    <title>JoinCode - Profile</title>
+</head>
+<body>
+    <!-- Verify account modal -->
+    <div id="verify.modal" class="verify" style="display: none;">
+        <div class="verify-content">
+            <h3>Hello, <%- username %>!</h3>
+            <h4>You need to verify your account!</h4>
+            <small style="color: #ccc;">
+                When you click on the button for editing the code, a special code will be generated, which will be sent to the postal
+                address <%- email %>
+            </small>
+            <input type="number" pattern="\d+" placeholder="Enter code..." id="verify.code.field" oninput="(function() { document.getElementById('verify.code.field').value = document.getElementById('verify.code.field').value.slice(0, 6) })()">
+            <small id="tip.verify"></small>
+            <div id="send-code.btn" class="btn">Verify</div>
+            <div id="resend-code.btn" class="btn red">Send Again</div>
+        </div>
+    </div>
+
+    <!-- SideBar -->
+    <div class="sidebar" id="sidebar.window">
+        <div class="close-mobile" id="close.btn">
+            &times;
+        </div>
+        <section class="logo"><img src="/img/logo-white.svg" alt="Logo"><label>JoinCode</label></section>
+        <nav>
+            <ul id="sidenav.items">
+                <li id="dashboard.trigger">
+                    <img src="/img/profile/sidebar/home.svg" alt="nav item" width="50" height="30">
+                    <label for="">My Dashboard</label>
+                </li>
+                <li id="lessons.trigger">
+                    <img src="/img/profile/sidebar/video.svg" alt="nav item" width="50" height="30">
+                    <label for="">My Video Lessons</label>
+                </li>
+                <li id="rates.trigger">
+                    <img src="/img/profile/sidebar/git.svg" alt="nav item" width="50" height="30">
+                    <label for="">My Rates</label>
+                </li>
+                <li id="synchro.trigger">
+                    <img src="/img/profile/sidebar/pulse.svg" alt="nav item" width="50" height="30">
+                    <label for="">Synchro Edit</label>
+                </li>
+                <li id="transactions.trigger">
+                    <img src="/img/profile/sidebar/transaction.svg" alt="nav item" width="50" height="30">
+                    <label for="">My Transactions</label>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div class="wrapper">
+        <!-- Apps button. (Mobile only) -->
+        <div class="apps-mobile" id="apps.btn">
+            <img src="/img/profile/sidebar/apps.svg" alt="" width="30" height="30">
+        </div>
+
+        <label id="title.current.page" class="title">My Dashboard</label>
+
+        <!-- Absolute Top Right Button (For DashBoard specially) -->
+        <div style="display: none;" class="plus-button">+</div>
+
+        <!-- Container -->
+        <div class="container">
+            <div class="dashboard-container" id="dashboard.container">
+                <div class="flex-list">
+                    <div class="block mini center-text">
+                        <!-- Absolute <-> Relative -->
+                        <img src="/img/profile/eye.svg" alt="eye" width="50" height="50" class="relative">
+
+                        <label class="info-text" id="count">1, 504</label>
+                        <small class="tip">Daily views</small>
+                    </div>
+                    <div class="block mini center-text">
+                        <!-- Absolute <-> Relative -->
+                        <img src="/img/profile/comment.svg" alt="comment" width="50" height="50" class="relative">
+                    
+                        <label class="info-text" id="views.count">241</label>
+                        <small class="tip">Comments</small>
+                    </div>
+                    <div class="block mini center-text">
+                        <!-- Absolute <-> Relative -->
+                        <img src="/img/profile/cash.svg" alt="cash" width="50" height="50" class="relative">
+                    
+                        <label class="info-text" id="views.count">$3,14</label>
+                        <small class="tip">Earned</small>
+                    </div>
+                </div>
+                <div class="flex-list not-center">
+                    <div class="block max">
+                        <h3 style="color: dodgerblue;">Recent Orders</h3>
+                        <div class="btn relative">View All</div>
+
+                        <!-- Order List Title -->
+                        <li class="attributes">
+                            <label>Name</label>
+                            <label>Price</label>
+                            <label>Payment</label>
+                            <label>Status</label>
+                        </li>
+
+                        <!-- Order List -->
+                        <ul class="list">
+                            <li>
+                                <label class="name">Michael Jackson</label>
+                                <label class="price">$200</label>
+                                <label class="payment">Paid</label>
+                                <label class="status delivered">Delivered</label>
+                            </li>
+                            <li>
+                                <label class="name">Michael Jackson</label>
+                                <label class="price">$200</label>
+                                <label class="payment">Paid</label>
+                                <label class="status delivered">Delivered</label>
+                            </li>
+                            <li>
+                                <label class="name">Michael Jackson</label>
+                                <label class="price">$200</label>
+                                <label class="payment">Paid</label>
+                                <label class="status delivered">Delivered</label>
+                            </li>
+                            <li>
+                                <label class="name">Michael Jackson</label>
+                                <label class="price">$200</label>
+                                <label class="payment">Paid</label>
+                                <label class="status delivered">Delivered</label>
+                            </li>
+                            <li>
+                                <label class="name">Michael Jackson</label>
+                                <label class="price">$200</label>
+                                <label class="payment">Paid</label>
+                                <label class="status delivered">Delivered</label>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="block medium">
+                        <h3 style="color: dodgerblue;">Your Customers</h3>
+                        <div class="btn relative">View All</div>
+
+                        <!-- Customers List -->
+                        <ul class="list customers">
+                            <li class="protect-size">
+                                <div class="no-flex profile-photo"></div>
+                                <label>Peter Parker</label>
+                            </li>
+                            <li class="protect-size">
+                                <div class="no-flex profile-photo"></div>
+                                <label>Peter Parker</label>
+                            </li>
+                            <li class="protect-size">
+                                <div class="no-flex profile-photo"></div>
+                                <label>Peter Parker</label>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="videos-container" id="videos.container" style="display: none;">
+                <h4 class="sub-title">All playlists.</h4>
+
+                <div class="playlist">
+                    <h4 class="playlist-title">Programming:</h4>
+                    <ul class="video-list">
+                        <div class="video">
+                            <div class="top-bar">IT for beginners.</div>
+                            <img src="https://www.fossmint.com/wp-content/uploads/2020/03/Udemy-Advance-Python-Learning-Courses.png" alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>23k views</label>
+                                <label>1k likes</label>
+                            </div>
+                        </div>
+                        <div class="video">
+                            <div class="top-bar">IT for beginners.</div>
+                            <img src="https://i.ytimg.com/vi/Oe421EPjeBE/maxresdefault.jpg" alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>23k views</label>
+                                <label>1k likes</label>
+                            </div>
+                        </div>
+                    </ul>
+                    <hr size="2" color="#ccc">
+                </div>
+                <div class="playlist">
+                    <h4 class="playlist-title">Arduino:</h4>
+                    <ul class="video-list">
+                        <div class="video">
+                            <div class="top-bar">Arduino IDE for beginners.</div>
+                            <img src="https://i.ytimg.com/vi/zJ-LqeX_fLU/maxresdefault.jpg"
+                                alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>12k views</label>
+                                <label>523 likes</label>
+                            </div>
+                        </div>
+                        <div class="video">
+                            <div class="top-bar">Sound Module Arduino Tutorial</div>
+                            <img src="https://discountseries.com/wp-content/uploads/2021/04/arduino-for-beginners-complete-course-image.jpg" alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>23k views</label>
+                                <label>1k likes</label>
+                            </div>
+                        </div>
+                    </ul>
+                    <hr size="2" color="#ccc">
+                </div>
+                <div class="playlist">
+                    <h4 class="playlist-title">WEB programming:</h4>
+                    <ul class="video-list">
+                        <div class="video">
+                            <div class="top-bar">Arduino IDE for beginners.</div>
+                            <img src="https://i.ytimg.com/vi/zJ-LqeX_fLU/maxresdefault.jpg" alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>12k views</label>
+                                <label>523 likes</label>
+                            </div>
+                        </div>
+                        <div class="video">
+                            <div class="top-bar">Sound Module Arduino Tutorial For Free</div>
+                            <img src="https://discountseries.com/wp-content/uploads/2021/04/arduino-for-beginners-complete-course-image.jpg"
+                                alt="preview" height="100%">
+                            <div class="bottom-bar">
+                                <label>23k views</label>
+                                <label>1k likes</label>
+                            </div>
+                        </div>
+                    </ul>
+                    <hr size="2" color="#ccc">
+                </div>
+            </div>
+            <div class="rates-container" id="rates.container" style="display: none;">
+                <h3 class="sub-title" style="margin-bottom: 10px;">Current rate: Gold</h3>
+
+                <!-- All rates -->
+                <h4 class="sub-title">All rates</h4>
+                <div class="rates-list flex-list">
+                    <div class="rate">
+                        <h3>Silver</h3>
+                        <div class="rate-option">
+                            <small>video limit</small>
+                            <h5 style="font-weight: 500;">10 video</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="rate-option">
+                            <small>synchro edit</small>
+                            <h5 style="font-weight: 500;">3 students</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">9,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                    <div class="rate">
+                        <h3>Gold</h3>
+                        <div class="rate-option">
+                            <small>video limit</small>
+                            <h5 style="font-weight: 500;">500 video</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="rate-option">
+                            <small>synchro edit</small>
+                            <h5 style="font-weight: 500;">6 students</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">19,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                    <div class="rate">
+                        <h3>Brilliant</h3>
+                        <div class="rate-option">
+                            <small>video limit</small>
+                            <h5 style="font-weight: 500;">1000 video</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="rate-option">
+                            <small>synchro edit</small>
+                            <h5 style="font-weight: 500;">unlimited students (6 see)</h5>
+                            <hr size="1" color="#ccc" width="100%">
+                        </div>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">39,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All kits -->
+                <h4 class="sub-title">All kits</h4>
+                <div class="rates-list flex-list">
+                    <div class="rate small">
+                        <h3>Silver + 20 coins</h3>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">12,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                    <div class="rate small">
+                        <h3>Gold + 50 coins</h3>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">29,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                    <div class="rate small">
+                        <h3>Brilliant + 100 coins</h3>
+                        <div class="cost">
+                            <label>from</label>
+                            <h2 style="font-weight: 600;">49,9</h2>
+                            <label>
+                                $<br>
+                                / month
+                            </label>
+                        </div>
+                        <div class="buy btn">
+                            Buy it
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="synchro-container" id="synchro.container" style="display: none;">
+                <h4 class="sub-title">Preview:</h4>
+                <div class="code-editor" id="editor.preview"></div>
+                <div class="flex-list">
+                    <div class="block mini" style="margin-top: 20px;">
+                        <h4>Theme:</h4><br>
+                        <select id="theme.select">
+                            <% themes.forEach(theme => { %>
+                             <option value="<%- theme %>"><%- theme %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div id="start.btn" class="start-btn">Start Lesson</div>
+            </div>
+            <div class="transactions-container" id="transactions.container" style="display: none;">
+                <div class="block max">
+                    <h3 style="color: dodgerblue;">All Transactions</h3>
+
+                    <!-- Order List -->
+                    <ul class="list">
+                        <li>
+                            <label class="name">Michael Jackson</label>
+                            <label class="price">$200</label>
+                            <label class="payment">Paid</label>
+                        </li>
+                        <li>
+                            <label class="name">Michael Jackson</label>
+                            <label class="price">$200</label>
+                            <label class="payment">Paid</label>
+                        </li>
+                        <li>
+                            <label class="name">Michael Jackson</label>
+                            <label class="price">$200</label>
+                            <label class="payment">Paid</label>
+                        </li>
+                        <li>
+                            <label class="name">Michael Jackson</label>
+                            <label class="price">$200</label>
+                            <label class="payment">Paid</label>
+                        </li>
+                        <li>
+                            <label class="name">Michael Jackson</label>
+                            <label class="price">$200</label>
+                            <label class="payment">Paid</label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
+    <script>
+        console.log('<%-themes%>')
+        const editor = new Editor(document.getElementById('editor.preview'), {
+            'js': {name: 'JavaScript'}
+        },'js', true, {
+            theme: 'default'
+        })
+        editor.setValue('console.log("Hello world!");')
+
+        function closeAllContainers() {
+            document.querySelectorAll('.container > *').forEach(element => {
+                element.style.display = 'none'
+            })
+        }
+
+        const init = () => {
+            document.getElementById('theme.select').onchange = function(e) {
+                editor._setOption('theme', e.target.value)
+            }
+            document.getElementById('apps.btn').onclick = function(e) {
+                e.preventDefault()
+                console.log('1')
+                document.getElementById('sidebar.window').style.left = '0px'
+            }
+            document.getElementById('close.btn').onclick = function(e) {
+                e.preventDefault()
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+
+            document.getElementById('start.btn').onclick = function(e) {
+                e.preventDefault()
+                if(e.target.textContent === 'Loading...') return;
+                e.target.style.background = 'orangered'
+                e.target.textContent = 'Loading...'
+                fetch('/sync', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        theme: document.getElementById('theme.select').value,
+                        name: '<%- username %>'
+                    })
+                })
+                .then(res => res.json())
+                .then(json => {
+                    if(json.status === true) {
+                        window.location.pathname = '/sync/' + json.id
+                    }
+                })
+            }
+
+            document.getElementById('dashboard.trigger').onclick = function(e) {
+                e.preventDefault()
+                closeAllContainers()
+                document.getElementById('title.current.page').textContent = 'My Dashboard'
+                document.getElementById('dashboard.container').style.display = 'block'
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+            document.getElementById('lessons.trigger').onclick = function (e) {
+                e.preventDefault()
+                closeAllContainers()
+                document.getElementById('title.current.page').textContent = 'My Video Lessons'
+                document.getElementById('videos.container').style.display = 'block'
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+            document.getElementById('rates.trigger').onclick = function (e) {
+                e.preventDefault()
+                closeAllContainers()
+                document.getElementById('title.current.page').textContent = 'My Rates'
+                document.getElementById('rates.container').style.display = 'block'
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+            document.getElementById('synchro.trigger').onclick = function (e) {
+                e.preventDefault()
+                closeAllContainers()
+                document.getElementById('title.current.page').textContent = 'My Synchro Edit'
+                document.getElementById('synchro.container').style.display = 'block'
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+            document.getElementById('transactions.trigger').onclick = function (e) {
+                e.preventDefault()
+                closeAllContainers()
+                document.getElementById('title.current.page').textContent = 'My Transactions'
+                document.getElementById('transactions.container').style.display = 'block'
+                document.getElementById('sidebar.window').style.left = '-100%'
+            }
+        }
+
+        const verifyUser = (code) => {
+            fetch('/verify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: '<%- email %>',
+                    code: code
+                })
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.status === true)
+                {
+                    document.getElementById('verify.modal').style.display = 'none'
+                    init()
+                }
+                else
+                {
+                    if(json.reason === 'incorrect') document.getElementById('tip.verify').innerText = 'Incorrect code...'
+                    else window.location.pathname = '/'
+                    
+                    setTimeout(() => {
+                        document.getElementById('tip.verify').style.display = 'none'
+                    }, 5000);
+                }
+            })
+        }
+
+        var CODE = null
+
+        const verified = '<%- verified %>'
+        if(verified === 'false' || verified === false) 
+        {
+            console.log('Verifing...')
+            fetch('/verifing', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: '<%- email %>',
+                    username: '<%- username %>',
+                })
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.status === true)
+                {
+                    document.getElementById('verify.modal').style.display = 'flex'
+                    CODE = json.code
+                    document.getElementById('send-code.btn').onclick = function(e) {
+                        e.preventDefault()
+                        if(document.getElementById('verify.code.field').value.length !== 6)
+                            return
+                        
+                        verifyUser(document.getElementById('verify.code.field').value)
+                    }
+                    document.getElementById('resend-code.btn').onclick = function(e) {
+                        e.preventDefault()
+                        
+                        document.getElementById('resend-code.btn').style.display = 'none'
+                        fetch('/verifing', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email: '<%- email %>',
+                                username: '<%- username %>',
+                                strong: true
+                            })
+                        })
+                            .then(res => res.json())
+                            .then(jsonn => {
+                                if(jsonn.status === true)
+                                {
+                                    CODE = jsonn.code
+
+                                    setTimeout(() => {
+                                        document.getElementById('resend-code.btn').style.display = 'flex'
+                                    }, 10000);
+                                }
+                            })
+                    }
+                }
+                else {
+                    window.location.pathname = '/'
+                }
+            })
+            .catch(err => console.log(err))
+        }
+        else init()
+    </script>
+</body>
+</html>

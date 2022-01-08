@@ -1,11 +1,22 @@
-function Editor(root, config, extension) {
+function Editor(root, config = {
+    'js': {name: 'JavaScript'}
+}, extension = 'js', readOnly = false, additional = {}, defaultValue = '') {
     this.editor = CodeMirror(root, {
             lineNumbers: true,
             mode: config[extension].name.toLowerCase(),
             lineSeparator: '\n',
             indentWithTabs: true,
             indentUnit: 4,
-            theme: 'darcula',
+            theme: 'ayu-mirage',
+            historyEventDelay: 400,
+            workTime: 100, workDelay: 100,
+            pollInterval: 50,
+            showTrailingSpace: true,
+            continueComments: 'Enter',
+            foldGutter: true,
+            readOnly: readOnly,
+            styleActiveLine: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter", "CodeMirror-lint-markers"],
             lineNumberFormatter: (line) => {
                 return line
             },
@@ -21,16 +32,16 @@ function Editor(root, config, extension) {
                     const end = cm.getCursor(false);
                     if((start.line !== end.line) || (start.ch !== end.ch))
                     {
-                        if(editor.getLine(start.line).trim().startsWith(config[extension].commentUnit))
+                        if(this.editor.getLine(start.line).trim().startsWith(config[extension].commentUnit))
                         {
-                            editor.uncomment({
+                            this.editor.uncomment({
                                 ...start
                             }, {
                                 ...end
                             })
                         }
                         else {
-                            editor.blockComment({
+                            this.editor.blockComment({
                                 ...start
                             }, {
                                 ...end
@@ -38,11 +49,21 @@ function Editor(root, config, extension) {
                         }
                     }
                     else {
-                        editor.toggleComment();
+                        this.editor.toggleComment();
                     }
-                }
-            }
+                },
+                "Ctrl-Space": "autocomplete",
+                "Ctrl-F": "find"
+            },
+            lint: {
+                'esversion': 6
+            },
+            styleActiveLine: readOnly ? false : true,
+            ...additional
         })
+
+    if(defaultValue.length > 0)
+        this.setValue(defaultValue)
 }
 
 Editor.prototype.setValue = function(value) {
@@ -51,4 +72,22 @@ Editor.prototype.setValue = function(value) {
 
 Editor.prototype.toggleComment = function() {
     this.editor.toggleComment()
+}
+
+Editor.prototype._setOption = function(name, value) {
+    this.editor.setOption(name, value)
+} 
+
+class RemoteEditor extends Editor {
+    constructor(root, config, extension, options, additional = {}) {
+        super(root, config, extension, true, additional)
+        this.options = {
+            timeout: 0,
+            ...options
+        }
+    }
+
+    receiveContent() {
+
+    }
 }

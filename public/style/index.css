@@ -5,3 +5,12 @@
   margin: 0;
   padding: 0;
 }
+
+.elevate-image {
+  box-shadow: 5px 5px 5px rgba(40, 40, 40, 0.2), -5px -5px 5px #f7f7f7;
+  border-radius: 10px;
+}
+
+.left-side {
+  flex: 1;
+}

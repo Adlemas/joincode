@@ -70,14 +70,18 @@ CommandPallete.prototype.addCommand = function(command, listener) {
 CommandPallete.prototype.updatePallete = function(text = null) {
     this.ul.innerHTML = ""
     var isSeparate = false;
+    var isFound = false
     for(var i = 0; i < this.commands.length; i++)
     {
         const item = document.createElement('li')
         if(text !== null && this.commands[i].command.startsWith(text))
+        {
             item.innerHTML = "> " + "<strong>" + this.commands[i].command.slice(0, text.length) + "</strong>" + this.commands[i].command.slice(text.length)
+            isFound = true
+        }
         else 
         {
-            if(!isSeparate) {
+            if(!isSeparate && text?.length > 0) {
                 const hr = document.createElement('hr')
                 hr.color = '#aaa'
                 hr.size = .7
@@ -91,6 +95,7 @@ CommandPallete.prototype.updatePallete = function(text = null) {
 
         this.ul.appendChild(item)
     }
+    if(!isFound && this.ul.querySelector('hr')) this.ul.removeChild(this.ul.querySelector('hr'));
 }
 
 CommandPallete.prototype.openPallete = function() {

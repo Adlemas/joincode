@@ -4,10 +4,165 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style/index.css">
+    <link rel="stylesheet" href="/style/index.css">
+    <link rel="stylesheet" href="/style/main.css">
+    <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <title>JoinCode</title>
 </head>
 <body>
-    Print some more code about programming!
+    <!-- Sign in modal -->
+    <div class="modal" id="sign_in_modal" style="display: none;">
+        <div class="modal-content">
+            <h2>Sign in</h2>
+            <form class="simple-form" id="form-simple">
+                <input type="email" id="email.field" placeholder="Email..." required>
+                <small class="error-tip" id="email.tip.error"></small>
+                <input type="password" id="password.field" placeholder="Password..." required>
+                <small class="error-tip" id="password.tip.error"></small>
+                <button type="submit">
+                    Log in
+                </button>
+                <h5 style="margin-top: 5px;">Have not account yet? <a href="/signup">Create one!</a></h5>
+            </form>
+            <div class="login-buttons" id="buttonDiv">
+                <div id="g_id_onload" data-client_id="938772614927-n65aas37mnlj47u152661c7dap5vh541.apps.googleusercontent.com" data-login_uri="https://your.domain/your_login_endpoint"
+                    data-auto_prompt="false">
+                </div>
+                <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with"
+                    data-shape="rectangular" data-logo_alignment="right">
+                </div>
+            </div>
+        </div>
+    </div>
+    <header>
+        <div class="container flex-between header-container">
+            <span class="flex-row-center">
+                <img src="/img/logo.svg" width="50">
+                <h3 class="sub-title" style="margin-left: 20px;">JoinCode</h3>
+            </span>
+            <span class="flex-row-center navigation">
+                <nav>
+                    <ul>
+                        <li>Home</li>
+                        <li>About</li>
+                        <li>Courses</li>
+                        <li>Trainers</li>
+                        <li onclick="showModal()">Sign in</li>
+                    </ul>
+                </nav>
+            </span>
+        </div>
+    </header>
+    <div class="banner">
+        <div class="container flex-between">
+            <div class="block-margin">
+                <div class="logo-title">JoinCode</div>
+                <div class="sub-title">All for programming.</div>
+                <p class="styled-text" style="margin-top: 20px; width: 500px;">Online programming platform with a lot of tool for comfort coding. Platform has trainers for fast typing on a keyboard,
+                increasing in programming experience, correcting mistakes and more other trainers about IT. It also has online
+                competitions about IT. For example you can code together with your teacher or friends in real mode with voice chat.</p>
+            </div>
+            <div>
+                <img src="/img/preview.png" alt="preview" style="user-select: none; pointer-events: none;" draggable="false">
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        const modal = document.getElementById('sign_in_modal')
+
+        function hideModal() {
+            modal.style.display = 'none'
+        }
+        
+        function showModal() {
+            modal.style.display = 'flex'
+        }
+
+        window.onclick = function(e) {
+            if(e.target === modal) {
+                hideModal()
+            }
+        }
+
+        function decodeJwtResponse(credential) {
+            fetch('/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    credential: credential,
+                    type: 'with-google'
+                })
+            })
+                .then(res => res.json())
+                .then(json => {
+                    console.log(json)
+                    if (json.status === true)
+                        window.location.pathname = '/profile/' + json.profile_id
+                    else
+                    {
+                        window.location.pathname = '/signup'
+                    }
+                })
+                .catch(err => console.log(err))
+        }
+
+        function handleCredentialResponse(response) {
+            decodeJwtResponse(response.credential)
+        }
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "938772614927-n65aas37mnlj47u152661c7dap5vh541.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+            google.accounts.id.renderButton(
+                document.getElementById("buttonDiv"),
+                { theme: "outline", size: "large" }  // customization attributes
+            );
+            google.accounts.id.prompt(); // also display the One Tap dialog
+        }
+
+        document.getElementById('form-simple').onsubmit = function(e) {
+            e.preventDefault()
+            fetch('/signin', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: document.getElementById('email.field').value,
+                    password: document.getElementById('password.field').value,
+                    type: 'by-hand'
+                })
+            })
+                .then(res => res.json())
+                .then(json => {
+                    console.log(json)
+                    if (json.status === true)
+                        window.location.pathname = '/profile/' + json.profile_id
+                    else {
+                        if(json.reason === 'password-incorrect')
+                        {
+                            document.getElementById('password.tip.error').innerText = 'Incorrect password...'
+                            document.getElementById('password.field').oninput = function() {
+                                document.getElementById('password.tip.error').innerText = ''
+                            }
+                        }
+                        else if(json.reason === 'no-user')
+                        {
+                            document.getElementById('email.tip.error').innerText = 'Incorrect email...'
+                            document.getElementById('email.field').oninput = function () {
+                                document.getElementById('email.tip.error').innerText = ''
+                            }
+                        }
+                    }
+                })
+                .catch(err => console.log(err))
+        }
+    </script>
 </body>
 </html>
