@@ -12,6 +12,27 @@ body {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  overflow-x: hidden !important;
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(5, 0, 33);
+  border-radius: 7.5px;
+  box-shadow: 0 0 2px rgba(100, 100, 100, 0.3);
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(5, 0, 33);
 }
 
 .wrapper {
@@ -26,6 +47,7 @@ body {
   flex: 1;
   min-width: 50%;
   min-height: 50%;
+  max-height: 100%;
   font-family: DejaVu Sans Mono, monospace;
   font-size: 15px;
   background-color: #242430;
@@ -40,6 +62,29 @@ body {
 
 .editor > h4 {
   margin: 5px;
+}
+
+.editor > .pause {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(100, 100, 100, 0.3);
+  z-index: 10;
+  user-select: none;
+}
+
+.editor > .pause > label {
+  color: #222;
+  font-size: larger;
+  font-weight: 600;
+  margin-top: 20px;
+  font-family: "Roboto", sans-serif;
 }
 
 .CodeMirror {
@@ -102,7 +147,7 @@ body {
   background-color: rgba(100, 100, 100, 0.1);
 }
 
-.name-modal {
+.customer-modal {
   width: 100%;
   height: 100%;
   background: rgba(100, 100, 100, 0.5);
@@ -115,9 +160,9 @@ body {
   justify-content: center;
 }
 
-.name-modal-content {
+.customer-modal-content {
   width: 250px;
-  height: 250px;
+  height: 300px;
   border-radius: 10px;
   background: #fefefe;
   box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
@@ -129,7 +174,7 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
-.name-modal-content input {
+.customer-modal-content input {
   width: 200px;
   height: 40px;
   border: 1px solid #ccc;
@@ -141,7 +186,7 @@ body {
   font-family: "Roboto", sans-serif;
 }
 
-.name-modal-content .btn {
+.customer-modal-content .btn {
   width: 200px;
   height: 40px;
   border-radius: 5px;
@@ -152,6 +197,76 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.customer-modal-content ul {
+  overflow-y: auto;
+  max-height: 250px;
+}
+
+.customer-modal-content li {
+  width: 100%;
+  height: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+  cursor: pointer;
+  background: #fefefe;
+  transition: 0.2s;
+  margin-bottom: 10px;
+}
+
+.customer-modal-content li.selected {
+  background-color: dodgerblue;
+  color: #fefefe;
+}
+
+.customer-modal-content li.selected:hover {
+  background-color: dodgerblue;
+}
+
+.customer-modal-content li:hover {
+  background-color: #f8f8f8;
+}
+
+.customer-modal-content li.active {
+  background-color: #f8f8f8;
+}
+
+.right-bar {
+  position: absolute;
+  width: 50px;
+  max-height: calc(100% - 40px);
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+  background: #242430;
+  box-shadow: 0 0 5px rgba(100, 100, 100, 0.3);
+  right: -40px;
+  top: 10px;
+  z-index: 100;
+  flex-direction: column;
+  align-items: center;
+  transition: 0.2s;
+}
+
+.right-bar span {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 10px 0;
+  border-radius: 5px;
+  margin: 5px auto;
+  cursor: pointer;
+}
+
+.right-bar span:hover {
+  background: rgba(100, 100, 100, 0.1);
 }
 
 @media only screen and (max-width: 700px) {

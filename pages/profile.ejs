@@ -162,6 +162,86 @@
         </nav>
     </div>
 
+    <!-- Modals -->
+    <div class="modal add-customer-modal" id="customer.modal" style="display: none;">
+        <div class="add-customer-content modal-content">
+            <h3>Customer Add Form</h3>
+            <input style="margin-bottom: 0;" type="text" id="customer.name.field" maxlength="25" placeholder="Name..." >
+            <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="customer.name.tip"></small>
+            <input style="margin-bottom: 0;" type="password" id="customer.password.field" maxlength="15" placeholder="Password..." >
+            <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="customer.password.tip"></small>
+            <div class="btn" id="customer.add.btn">
+                Add customer
+            </div>
+        </div>
+    </div>
+
+    <div class="modal add-lesson-modal" id="lesson.modal" style="display: none;">
+        <div class="add-lesson-content modal-content">
+            <h3>Lesson Add Form</h3>
+            <h5 style="width: 100%; margin: 5px 0;">Video:</h5>
+            <input type="file" id="lesson.video.file" accept="video/mpeg, video/mp4, video/wav" capture="environment" placeholder="Choose a video...">
+            <h5 style="width: 100%; margin: 5px 0;">Video Preview:</h5>
+            <input type="file" id="lesson.preview.file" style="display: none;" accept="image/*" capture="environment" placeholder="Choose a photo...">
+            <div class="preview-bg" id="lesson.preview">
+                <img src="" id="lesson.preview.img" alt="preview" width="100%" height="100%" style="display: none;">
+            </div>
+            <input style="margin-bottom: 0;" type="text" id="lesson.title.field" maxlength="50" placeholder="Video Title...">
+            <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="lesson.title.tip"></small>
+            <textarea id="lesson.description.field" style="margin: 0;" placeholder="Description..."></textarea>
+            <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="lesson.description.tip"></small>
+            <select style="margin-top: 15px; margin-bottom: 0; margin-top: 5px;" id="lesson.playlist.select">
+                <option value="lesson.playlist.add">Add New Playlist</option>
+                <% videos.forEach(playlist => { %>
+                    <option value="<%- playlist.title %>"><%- playlist.title %></option>
+                <% }) %>
+            </select>
+            <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="lesson.playlist.tip"></small>
+            <section id="lesson.playlist.section" style="width: 100%; display: flex; align-items: center; flex-direction: column;">
+                <hr size="1" width="90%" color="#ccc" style="margin: 5px auto 10px;">
+                <input style="margin-bottom: 0;" type="text" id="lesson.playlist.title.field" maxlength="30" placeholder="New Playlist Title...">
+                <small style="color: crimson; margin-bottom: 5px; width: 100%;" id="lesson.playlist.title.tip"></small>
+            </section>
+            <div class="flex-list">
+                <div class="btn" style="margin-right: 5px;" id="lesson.add.btn">
+                    Add Lesson
+                </div>
+                <div class="btn" style="background: orangered;" id="lesson.cancel.btn">
+                    Quit
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm action modal.
+         To activate you need to use function "confirmByModal".
+    -->
+    <div class="modal confirm-modal" id="confirm.modal" style="display: none;">
+        <div class="modal-content">
+            <!-- Are you sure? -->
+            <h4 id="confirm.title"></h4>
+            <!-- This will delete all videos in this playlist! -->
+            <h6 id="confirm.tip"></h6>
+            <!-- Type <strong>programming</strong>, for delete this playlist. -->
+            <label id="confirm.target"></label>
+            <input type="text" data-confirm="example" id="confirm.input" >
+            <!-- Delete -->
+            <div id="confirm.btn" class="btn" style="opacity: .3; background-color: crimson; cursor: not-allowed;">Delete</div>
+            <div id="confirm.cancel.btn" class="btn">Cancel</div>
+        </div>
+    </div>
+
+    <div class="modal loading-modal" id="loading.modal" style="display: none;">
+        <div class="modal-content" style="padding: 30px 50px;">
+            <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <h4 id="loading.title">Loading...</h4>
+        </div>
+    </div>
+
     <div class="wrapper">
         <!-- Apps button. (Mobile only) -->
         <div class="apps-mobile" id="apps.btn">
@@ -171,7 +251,7 @@
         <label id="title.current.page" class="title">My Dashboard</label>
 
         <!-- Absolute Top Right Button (For DashBoard specially) -->
-        <div style="display: none;" class="plus-button">+</div>
+        <div style="display: none;" id="plus.btn" class="plus-button">+</div>
 
         <!-- Container -->
         <div class="container">
@@ -200,9 +280,37 @@
                     </div>
                 </div>
                 <div class="flex-list not-center">
+                    <div class="block medium">
+                        <h3 style="color: dodgerblue;">Your Customers</h3>
+                        <div id="customer.modal.btn" class="btn relative">Add</div>
+                    
+                        <!-- Customers List -->
+                        <ul class="list customers">
+                            <% if(customers.length> 0) { %>
+                                <% customers.forEach(customer=> { %>
+                                    <li class="protect-size">
+                                        <div class="no-flex profile-photo">
+                                            <% if(customer.uri) { %>
+                                                <img src="<%- customer.uri %>" width="35" height="35" />
+                                                <% } else { %>
+                                                    <img src="/img/user-color.png" width="35" height="35" />
+                                                    <% } %>
+                                        </div>
+                                        <label>
+                                            <%- customer.name %>
+                                        </label>
+                                    </li>
+                                    <% }) %>
+                                        <% } else { %>
+                                            <div class="no-data">
+                                                <h4>You do not have customers yet!</h4>
+                                            </div>
+                                            <% } %>
+                        </ul>
+                    </div>
                     <div class="block max">
-                        <h3 style="color: dodgerblue;">Recent Orders</h3>
-                        <div class="btn relative">View All</div>
+                        <h3 style="color: dodgerblue;">My Orders</h3>
+                        <!-- <div class="btn relative">Add</div> -->
 
                         <!-- Order List Title -->
                         <li class="attributes">
@@ -214,56 +322,20 @@
 
                         <!-- Order List -->
                         <ul class="list">
-                            <li>
-                                <label class="name">Michael Jackson</label>
-                                <label class="price">$200</label>
-                                <label class="payment">Paid</label>
-                                <label class="status delivered">Delivered</label>
-                            </li>
-                            <li>
-                                <label class="name">Michael Jackson</label>
-                                <label class="price">$200</label>
-                                <label class="payment">Paid</label>
-                                <label class="status delivered">Delivered</label>
-                            </li>
-                            <li>
-                                <label class="name">Michael Jackson</label>
-                                <label class="price">$200</label>
-                                <label class="payment">Paid</label>
-                                <label class="status delivered">Delivered</label>
-                            </li>
-                            <li>
-                                <label class="name">Michael Jackson</label>
-                                <label class="price">$200</label>
-                                <label class="payment">Paid</label>
-                                <label class="status delivered">Delivered</label>
-                            </li>
-                            <li>
-                                <label class="name">Michael Jackson</label>
-                                <label class="price">$200</label>
-                                <label class="payment">Paid</label>
-                                <label class="status delivered">Delivered</label>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="block medium">
-                        <h3 style="color: dodgerblue;">Your Customers</h3>
-                        <div class="btn relative">View All</div>
-
-                        <!-- Customers List -->
-                        <ul class="list customers">
-                            <li class="protect-size">
-                                <div class="no-flex profile-photo"></div>
-                                <label>Peter Parker</label>
-                            </li>
-                            <li class="protect-size">
-                                <div class="no-flex profile-photo"></div>
-                                <label>Peter Parker</label>
-                            </li>
-                            <li class="protect-size">
-                                <div class="no-flex profile-photo"></div>
-                                <label>Peter Parker</label>
-                            </li>
+                            <% if (orders.length > 0) { %>
+                                <% orders.forEach(order => { %>
+                                <li>
+                                    <label class="name"><%- order.name %></label>
+                                    <label class="price"><%- order.price %></label>
+                                    <label class="payment"><%- order.payment %></label>
+                                    <label class="status <%- order.status %>"><%- order.status %></label>
+                                </li>
+                                <% }) %>
+                            <% } else { %>
+                                <div class="no-data">
+                                    <h4>You do not have orders yet!</h4>
+                                </div>
+                            <% } %>
                         </ul>
                     </div>
                 </div>
@@ -271,77 +343,42 @@
             <div class="videos-container" id="videos.container" style="display: none;">
                 <h4 class="sub-title">All playlists.</h4>
 
-                <div class="playlist">
-                    <h4 class="playlist-title">Programming:</h4>
-                    <ul class="video-list">
-                        <div class="video">
-                            <div class="top-bar">IT for beginners.</div>
-                            <img src="https://www.fossmint.com/wp-content/uploads/2020/03/Udemy-Advance-Python-Learning-Courses.png" alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>23k views</label>
-                                <label>1k likes</label>
-                            </div>
+                <% if(videos.length > 0) { %>
+                    <% videos.forEach(playlist => { %>
+                        <div class="playlist">
+                            <span style="width: 90%; display: flex; align-items: center; justify-content: space-between;">
+                                <h4 class="playlist-title"><%- playlist.title %>:</h4>
+                                <img src="/img/profile/more.png" width="32" height="32" class="playlist-more-btn" data-target="<%- playlist.title %>" />
+                            </span>
+                            <ul class="video-list">
+                                <% if(playlist.sources.length > 0) { %>
+                                    <% playlist.sources.forEach(source => { %>
+                                        <div class="video" data-source="<%- source.src %>">
+                                            <div class="top-bar"><%- source.title %></div>
+                                            <img src="<%- source.preview %>" alt="preview" height="100%">
+                                            <div class="bottom-bar">
+                                                <label><%- source.views %> views</label>
+                                                <label><%- source.likes %> likes</label>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                <% } else { %>
+                                    <div class="no-data">
+                                        <h5>You do not have videos in this playlist yet!</h5>
+                                    </div>
+                                <% } %>
+                            </ul>
+                            <hr size="2" color="#ccc">
                         </div>
-                        <div class="video">
-                            <div class="top-bar">IT for beginners.</div>
-                            <img src="https://i.ytimg.com/vi/Oe421EPjeBE/maxresdefault.jpg" alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>23k views</label>
-                                <label>1k likes</label>
-                            </div>
-                        </div>
-                    </ul>
-                    <hr size="2" color="#ccc">
-                </div>
-                <div class="playlist">
-                    <h4 class="playlist-title">Arduino:</h4>
-                    <ul class="video-list">
-                        <div class="video">
-                            <div class="top-bar">Arduino IDE for beginners.</div>
-                            <img src="https://i.ytimg.com/vi/zJ-LqeX_fLU/maxresdefault.jpg"
-                                alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>12k views</label>
-                                <label>523 likes</label>
-                            </div>
-                        </div>
-                        <div class="video">
-                            <div class="top-bar">Sound Module Arduino Tutorial</div>
-                            <img src="https://discountseries.com/wp-content/uploads/2021/04/arduino-for-beginners-complete-course-image.jpg" alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>23k views</label>
-                                <label>1k likes</label>
-                            </div>
-                        </div>
-                    </ul>
-                    <hr size="2" color="#ccc">
-                </div>
-                <div class="playlist">
-                    <h4 class="playlist-title">WEB programming:</h4>
-                    <ul class="video-list">
-                        <div class="video">
-                            <div class="top-bar">Arduino IDE for beginners.</div>
-                            <img src="https://i.ytimg.com/vi/zJ-LqeX_fLU/maxresdefault.jpg" alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>12k views</label>
-                                <label>523 likes</label>
-                            </div>
-                        </div>
-                        <div class="video">
-                            <div class="top-bar">Sound Module Arduino Tutorial For Free</div>
-                            <img src="https://discountseries.com/wp-content/uploads/2021/04/arduino-for-beginners-complete-course-image.jpg"
-                                alt="preview" height="100%">
-                            <div class="bottom-bar">
-                                <label>23k views</label>
-                                <label>1k likes</label>
-                            </div>
-                        </div>
-                    </ul>
-                    <hr size="2" color="#ccc">
-                </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="no-data">
+                        <h5>You do not have playlists yet!</h5>
+                    </div>
+                <% } %>
             </div>
             <div class="rates-container" id="rates.container" style="display: none;">
-                <h3 class="sub-title" style="margin-bottom: 10px;">Current rate: Gold</h3>
+                <h3 class="sub-title" style="margin-bottom: 10px;">Current rate: <%- rate %></h3>
 
                 <!-- All rates -->
                 <h4 class="sub-title">All rates</h4>
@@ -488,31 +525,19 @@
 
                     <!-- Order List -->
                     <ul class="list">
-                        <li>
-                            <label class="name">Michael Jackson</label>
-                            <label class="price">$200</label>
-                            <label class="payment">Paid</label>
-                        </li>
-                        <li>
-                            <label class="name">Michael Jackson</label>
-                            <label class="price">$200</label>
-                            <label class="payment">Paid</label>
-                        </li>
-                        <li>
-                            <label class="name">Michael Jackson</label>
-                            <label class="price">$200</label>
-                            <label class="payment">Paid</label>
-                        </li>
-                        <li>
-                            <label class="name">Michael Jackson</label>
-                            <label class="price">$200</label>
-                            <label class="payment">Paid</label>
-                        </li>
-                        <li>
-                            <label class="name">Michael Jackson</label>
-                            <label class="price">$200</label>
-                            <label class="payment">Paid</label>
-                        </li>
+                        <% if (transactions.length > 0) { %>
+                            <% transactions.forEach(transaction => { %>
+                                <li>
+                                    <label class="name">Michael Jackson</label>
+                                    <label class="price">$200</label>
+                                    <label class="payment">Paid</label>
+                                </li>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="no-data">
+                                <h4>You do not have transactions yet!</h4>
+                            </div>
+                        <% } %>
                     </ul>
                 </div>
             </div>
@@ -521,13 +546,101 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
     <script>
-        console.log('<%-themes%>')
+        const urlID = '<%- urlID %>'
+
+        function startLoading(title) {
+            document.getElementById('loading.title').textContent = title;
+            document.getElementById('loading.modal').style.display = 'flex'
+            return function() {
+                document.getElementById('loading.modal').style.display = 'none'
+            }
+        }
+
+        function confirmByModal(title, tip, confirmWord, actionName, actionEvent, abort) {
+            if(typeof title !== 'string') return console.warn(`The title of confirm modal must be a string instance, not ${typeof title}!`)
+            document.getElementById('confirm.title').textContent = title
+            if(typeof tip !== 'string') return console.warn(`The tip of confirm modal must be a string instance!`)
+            document.getElementById('confirm.tip').textContent = tip
+            if (typeof confirmWord !== 'string') return console.warn(`The confirmWord of confirm modal must be a string instance, not ${typeof tip}!`)
+            document.getElementById('confirm.input').dataset.confirm = confirmWord
+            if(typeof actionName !== 'string') return console.warn(`The actionName of confirm modal must be a string instance, not ${typeof actionName}!`)
+            document.getElementById('confirm.target').innerHTML = `Type <strong>${confirmWord}</strong>, for ${actionName}!`
+            
+            document.getElementById('confirm.btn').onclick = function(e) {
+                e.preventDefault()
+                if(document.getElementById('confirm.input').value?.trim() !== confirmWord) return;
+                document.getElementById('confirm.input').value = ''
+                document.getElementById('confirm.modal').style.display = 'none'
+                if(typeof actionEvent !== 'function') return console.warn(`The actionEvent of confirm modal must be a function instance, not ${typeof actionEvent}!`)
+                actionEvent()
+            }
+            document.getElementById('confirm.input').oninput = function(e) {
+                if(e.target.value !== confirmWord) {
+                    document.getElementById('confirm.btn').style.opacity = .3
+                    document.getElementById('confirm.btn').style.cursor = 'not-allowed'
+                }
+                else {
+                    document.getElementById('confirm.btn').style.opacity = 1
+                    document.getElementById('confirm.btn').style.cursor = 'pointer'
+                }
+            }
+            document.getElementById('confirm.cancel.btn').onclick = function(e) {
+                e.preventDefault()
+                if(abort && typeof abort === 'function') abort()
+                else if(typeof abort !== 'function' && abort) console.warn(`The abort of confirm modal must be a function instance, not ${typeof abort}!`);
+                document.getElementById('confirm.modal').style.display = 'none'
+            }
+
+            document.getElementById('confirm.modal').style.display = 'flex'
+        }
+
+        function addCustomer(name, password, uri) {
+            document.getElementById('customer.add.btn').textContent = 'Loading...'
+            document.getElementById('customer.add.btn').style.background = 'orangered'
+            fetch('/customer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: name,
+                    password: password,
+                    uri: uri,
+                    email: '<%- email %>',
+                    urlID: urlID
+                })
+            })
+                .then(res => res.json())
+                .then(json => {
+                    if(json.status === true)
+                    {
+                        window.location.replace('/profile/' + json.newURL)
+                    }
+                    else if(json.reason === 'no-data') 
+                    {
+                        document.getElementById('customer.password.tip').textContent = 'Enter a correct data...'
+                    }
+                    else if(json.reason === 'exists')
+                    {
+                        document.getElementById('customer.password.tip').textContent = 'This customer name already exists...'
+                    }
+                    else
+                    {
+                        window.location.pathname = '/'
+                    }
+                    document.getElementById('customer.add.btn').textContent = 'Add Customer'
+                    document.getElementById('customer.add.btn').style.background = 'dodgerblue'
+                })
+        }
+
         const editor = new Editor(document.getElementById('editor.preview'), {
             'js': {name: 'JavaScript'}
         },'js', true, {
             theme: 'default'
         })
-        editor.setValue('console.log("Hello world!");')
+        setTimeout(() => {
+            editor.setValue('console.log("Hello world!");')
+        }, 1000);
 
         function closeAllContainers() {
             document.querySelectorAll('.container > *').forEach(element => {
@@ -535,13 +648,262 @@
             })
         }
 
+        function addVideo(file, preview, title, description, playlist) {
+            const formData = new FormData()
+            formData.append('video', file)
+            formData.append('preview', preview)
+            formData.append('title', title)
+            formData.append('description', description)
+            formData.append('playlist', playlist)
+            formData.append('email', '<%- email %>')
+            formData.append('urlID', urlID)
+
+            fetch('/video', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(json => {
+                if(json.status === true)
+                {
+                    window.location.replace('/profile/' + json.newURL)
+                }
+                else
+                {
+                    alert('Error while uploading video lesson...')
+                }
+            })
+        }
+
         const init = () => {
+
+            document.querySelectorAll('.playlist-more-btn').forEach(btn => {
+                const dataset = btn.dataset
+                console.log(dataset)
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault()
+                    const modal = document.createElement('div')
+                    modal.style.width = '200px'
+                    modal.style.height = '90px'
+                    modal.style.display = 'flex'
+                    modal.style.flexDirection = 'column'
+                    modal.style.background = '#fefefe'
+                    modal.style.boxShadow = '0 0 5px rgba(100, 100, 100, .3)'
+                    modal.style.borderRadius = '5px'
+                    modal.style.padding = '5px'
+                    modal.style.position = 'absolute'
+                    modal.style.top = (btn.getBoundingClientRect().y + 40) + 'px'
+                    modal.style.left = (btn.getBoundingClientRect().x - 180) + 'px';
+                    modal.style.zIndex = 20;
+                    modal.style.transition = '.1s'
+                    modal.style.opacity = '0';
+                    [{
+                        name: 'Delete',
+                        event: (e) => {
+                            e.end(() => {
+                                confirmByModal(
+                                    'Are you sure?',
+                                    "By deleting this playlist, you deleting all videos in this playlist too!",
+                                    e.target,
+                                    "delete this playlist",
+                                    () => {
+                                        const cb = startLoading("Deleting playlist...")
+                                        fetch('/delete-playlist', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                email: '<%- email %>',
+                                                urlID: urlID,
+                                                playlist: dataset.target
+                                            })
+                                        })
+                                        .then(res => res.json())
+                                        .then(json => {
+                                            console.log(json)
+                                            if(json.status === true)
+                                            {
+                                                window.location.replace('/profile/' + json.newURL)
+                                            }
+                                            else {
+                                                console.log('Error: ' + json.reason)
+                                            }
+                                        })
+                                        .catch(err => {
+                                            console.log('undefined error!')
+                                        })
+                                    }
+                                )
+                            })
+                        }
+                    }, {
+                        name: 'Rename',
+                        event: (e) => {
+                            e.end(() => {
+                                alert('Renaming playlist...')
+                            })
+                        }
+                    }].forEach(({name, event}) => {
+                        const btn = document.createElement('div')
+                        btn.textContent = name;
+                        btn.style.width = '100%'
+                        btn.style.height = '40px'
+                        btn.style.padding = '10px 5px'
+                        btn.style.fontFamily = '"Roboto", sans-serif';
+                        btn.style.fontSize = '14px';
+                        btn.style.transition = '.1s'
+                        btn.onmouseenter = function(e) {
+                            e.target.style.background = 'rgba(100, 100, 100, .05)'
+                        }
+                        btn.onmouseleave = function(e) {
+                            e.target.style.background = '#fefefe'
+                        }
+                        btn.onclick = function(e) {
+                            e.preventDefault()
+                            event({
+                                end: (callback) => {
+                                    if(typeof callback === 'function') callback()
+                                    else console.warn("Callback type must be a function!");
+                                    modal.remove()
+                                },
+                                target: (dataset.target) || 'undefined'
+                            })
+                        }
+                        modal.appendChild(btn)
+                    })
+                    modal.addEventListener('mouseleave', function (e) {
+                        modal.style.opacity = '0'
+                        setTimeout(() => {
+                            modal.remove()
+                        }, 500);
+                    })
+                    document.body.insertBefore(modal, document.body.firstChild)
+                    setTimeout(() => {
+                        modal.style.opacity = '1'
+                    }, 50);
+                })
+            })
+
+            document.getElementById('lesson.preview').onclick = function(e) {
+                e.preventDefault()
+                document.getElementById('lesson.preview.file').click()
+            }
+
+            document.getElementById('lesson.preview.file').onchange = function(e) {
+                if(FileReader && e.target.files && e.target.files.length)
+                {
+                    const fr = new FileReader()
+                    fr.onload = function() {
+                        document.getElementById('lesson.preview.img').style.display = 'block'
+                        document.getElementById('lesson.preview.img').src = fr.result
+                    }
+                    fr.readAsDataURL(e.target.files[0])
+                }
+                else return
+            }
+
+            document.getElementById('lesson.add.btn').onclick = function(e) {
+                e.preventDefault()
+                const fileField = document.getElementById('lesson.video.file')
+                const fileList = fileField.files
+                if(fileList.length <= 0)
+                    return (() => {
+                        document.getElementById('lesson.title.tip').textContent = 'Please select video file...'
+                        setTimeout(() => {
+                            document.getElementById('lesson.title.tip').textContent = ''
+                        }, 3000);
+                    })()
+                const file = fileList[0]
+                const titleField = document.getElementById('lesson.title.field')
+                if(!titleField.value)
+                    return (() => {
+                        document.getElementById('lesson.title.tip').textContent = 'Enter a correct video title...'
+                        setTimeout(() => {
+                            document.getElementById('lesson.title.tip').textContent = ''
+                        }, 3000);
+                    })()
+                const title = titleField.value
+                const description = document.getElementById('lesson.description.field').value
+                if(!description)
+                    return (() => {
+                        document.getElementById('lesson.description.tip').textContent = 'Enter a correct video description...'
+                        setTimeout(() => {
+                            document.getElementById('lesson.description.tip').textContent = ''
+                        }, 3000);
+                    })()
+                var playlist = document.getElementById('lesson.playlist.select').value
+                if(playlist === 'lesson.playlist.add')
+                {
+                    playlist = document.getElementById('lesson.playlist.title.field').value
+                    if(!playlist.length)
+                        return (() => {
+                            document.getElementById('lesson.playlist.title.tip').innerText = 'Enter a playlist name...'
+                            setTimeout(() => {
+                                document.getElementById('lesson.playlist.title.tip').innerText = ''
+                            }, 3000);
+                        })()
+                }
+                const preview = document.getElementById('lesson.preview.file').files[0]
+                if(!preview)
+                    return (() => {
+                        document.getElementById('lesson.title.tip').textContent = 'Please choose preview photo...'
+                        setTimeout(() => {
+                            document.getElementById('lesson.title.tip').textContent = ""
+                        }, 3000);
+                    })()
+                addVideo(file, preview, title, description, playlist)
+            }
+
+            window.onclick = function(e) {
+                if(e.target.id === 'customer.modal')
+                    document.getElementById('customer.modal').style.display = 'none'
+                else if(e.target.id === 'lesson.modal')
+                    document.getElementById('lesson.modal').style.display = 'none'
+            }
+
+            document.getElementById('customer.modal.btn').onclick = function(e) {
+                e.preventDefault()
+                document.getElementById('customer.modal').style.display = 'flex'
+            }
+
+            document.getElementById('plus.btn').onclick = function(e) {
+                e.preventDefault()
+                document.getElementById('lesson.modal').style.display = 'flex'
+            }
+
+            document.getElementById('lesson.cancel.btn').onclick = function (e) {
+                e.preventDefault()
+                document.getElementById('lesson.modal').style.display = 'none'
+            }
+
+            document.getElementById('customer.add.btn').onclick = function(e) {
+                e.preventDefault()
+                if(e.target.textContent === 'Loading...') return;
+                const nameField = document.getElementById('customer.name.field')
+                const passwordField = document.getElementById('customer.password.field')
+                if(nameField.value.length <= 2)
+                    return (() => {
+                        document.getElementById('customer.name.tip').textContent = nameField.value.length <= 0 ? 'Type a name...' : 'This name is so short...'
+                        setTimeout(() => {
+                            document.getElementById('customer.name.tip').textContent = ''
+                        }, 3000);
+                    })()
+                else if(passwordField.value.length <= 0)
+                    return (() => {
+                        document.getElementById('customer.password.tip').textContent = 'Enter a correct password...'
+                        setTimeout(() => {
+                            document.getElementById('customer.password.tip').textContent = ''
+                        }, 3000);
+                    })()
+                addCustomer(nameField.value, passwordField.value, null)
+            }
+
             document.getElementById('theme.select').onchange = function(e) {
                 editor._setOption('theme', e.target.value)
             }
             document.getElementById('apps.btn').onclick = function(e) {
                 e.preventDefault()
-                console.log('1')
                 document.getElementById('sidebar.window').style.left = '0px'
             }
             document.getElementById('close.btn').onclick = function(e) {
@@ -561,13 +923,19 @@
                     },
                     body: JSON.stringify({
                         theme: document.getElementById('theme.select').value,
-                        name: '<%- username %>'
+                        name: '<%- username %>',
+                        email: '<%- email %>'
                     })
                 })
                 .then(res => res.json())
                 .then(json => {
+                    console.log(json)
                     if(json.status === true) {
                         window.location.pathname = '/sync/' + json.id
+                    }
+                    else if(json.reason === 'no-user')
+                    {
+                        window.location.replace('/')
                     }
                 })
             }
@@ -575,6 +943,7 @@
             document.getElementById('dashboard.trigger').onclick = function(e) {
                 e.preventDefault()
                 closeAllContainers()
+                document.getElementById('plus.btn').style.display = 'none'
                 document.getElementById('title.current.page').textContent = 'My Dashboard'
                 document.getElementById('dashboard.container').style.display = 'block'
                 document.getElementById('sidebar.window').style.left = '-100%'
@@ -582,6 +951,7 @@
             document.getElementById('lessons.trigger').onclick = function (e) {
                 e.preventDefault()
                 closeAllContainers()
+                document.getElementById('plus.btn').style.display = 'flex'
                 document.getElementById('title.current.page').textContent = 'My Video Lessons'
                 document.getElementById('videos.container').style.display = 'block'
                 document.getElementById('sidebar.window').style.left = '-100%'
@@ -589,6 +959,7 @@
             document.getElementById('rates.trigger').onclick = function (e) {
                 e.preventDefault()
                 closeAllContainers()
+                document.getElementById('plus.btn').style.display = 'none'
                 document.getElementById('title.current.page').textContent = 'My Rates'
                 document.getElementById('rates.container').style.display = 'block'
                 document.getElementById('sidebar.window').style.left = '-100%'
@@ -596,6 +967,7 @@
             document.getElementById('synchro.trigger').onclick = function (e) {
                 e.preventDefault()
                 closeAllContainers()
+                document.getElementById('plus.btn').style.display = 'none'
                 document.getElementById('title.current.page').textContent = 'My Synchro Edit'
                 document.getElementById('synchro.container').style.display = 'block'
                 document.getElementById('sidebar.window').style.left = '-100%'
@@ -603,6 +975,7 @@
             document.getElementById('transactions.trigger').onclick = function (e) {
                 e.preventDefault()
                 closeAllContainers()
+                document.getElementById('plus.btn').style.display = 'none'
                 document.getElementById('title.current.page').textContent = 'My Transactions'
                 document.getElementById('transactions.container').style.display = 'block'
                 document.getElementById('sidebar.window').style.left = '-100%'
@@ -617,15 +990,15 @@
                 },
                 body: JSON.stringify({
                     email: '<%- email %>',
-                    code: code
+                    code: code,
+                    urlID: urlID
                 })
             })
             .then(res => res.json())
             .then(json => {
                 if(json.status === true)
                 {
-                    document.getElementById('verify.modal').style.display = 'none'
-                    init()
+                    window.location.replace('/profile/' + json.newURL)
                 }
                 else
                 {

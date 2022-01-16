@@ -25,6 +25,22 @@ const userScheme = new Scheme({
         type: Array,
         default: ['default']
     },
+    videos: {
+        type: Array,
+        default: []
+    },
+    customers: {
+        type: Array,
+        default: []
+    },
+    transactions: {
+        type: Array,
+        default: []
+    },
+    orders: {
+        type: Array,
+        default: []
+    },
     password: {
         type: String,
         required: true
@@ -34,6 +50,6 @@ const userScheme = new Scheme({
     }
 }, { timestamps: true })
 
-const User = mongoose.model('Blog', userScheme)
+const User = mongoose.model('User', userScheme)
 
 module.exports = User;

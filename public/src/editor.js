@@ -3,7 +3,11 @@ function Editor(root, config = {
 }, extension = 'js', readOnly = false, additional = {}, defaultValue = '') {
     this.editor = CodeMirror(root, {
             lineNumbers: true,
-            mode: config[extension].name.toLowerCase(),
+            mode: {
+                name: config[extension].name.toLowerCase(),
+                globalVars: true
+            },
+            autoCloseTags: true,
             lineSeparator: '\n',
             indentWithTabs: true,
             indentUnit: 4,
@@ -27,7 +31,6 @@ function Editor(root, config = {
             autoCloseBrackets: true,
             extraKeys: {
                 'Ctrl-/': (cm) => {
-                    console.log(cm)
                     const start = cm.getCursor(true);
                     const end = cm.getCursor(false);
                     if((start.line !== end.line) || (start.ch !== end.ch))

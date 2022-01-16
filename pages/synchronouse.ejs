@@ -82,9 +82,13 @@
     <link rel="stylesheet" href="/codemirror/addon/lint/lint.css">
     <script src="/codemirror/lib/codemirror.js"></script>
     <script src="/codemirror/mode/javascript/javascript.js"></script>
+    <script src="/codemirror/mode/xml/xml.js"></script>
+    <script src="/codemirror/mode/css/css.js"></script>
+    <script src="/codemirror/mode/htmlmixed/htmlmixed.js"></script>
     <script src="/codemirror/addon/edit/matchbrackets.js"></script>
     <script src="/codemirror/addon/edit/closebrackets.js"></script>
     <script src="/codemirror/addon/edit/trailingspace.js"></script>
+    <script src="/codemirror/addon/edit/closetag.js"></script>
     <script src="/codemirror/addon/edit/continuelist.js"></script>
     <script src="/codemirror/addon/display/placeholder.js"></script>
     <script src="/codemirror/addon/comment/continuecomment.js"></script>
@@ -97,6 +101,9 @@
     <script src="/codemirror/addon/hint/show-hint.js"></script>
     <script src="/codemirror/addon/hint/javascript-hint.js"></script>
     <script src="/codemirror/addon/hint/anyword-hint.js"></script>
+    <script src="/codemirror/addon/hint/css-hint.js"></script>
+    <script src="/codemirror/addon/hint/html-hint.js"></script>
+    <script src="/codemirror/addon/hint/xml-hint.js"></script>
     <script src="/codemirror/addon/lint/lint.js"></script>
     <script src="/codemirror/addon/lint/javascript-lint.js"></script>
     <script src="/codemirror/addon/selection/active-line.js"></script>
@@ -114,19 +121,29 @@
 </head>
 <body>
     <!-- Take Name Modal -->
-    <div class="name-modal" id="name.modal">
-        <div class="name-modal-content">
-            <h3>Enter your name:</h3>
+    <div class="customer-modal" id="customer.modal" style="display: none;">
+        <div class="customer-modal-content">
+            <h3>Choouse your account:</h3>
+            <ul style="width: 100%; display: flex; align-items: center; flex-direction: column;" id="customer-list">
+                <% customers.forEach(customer => { %>
+                    <li class="customer-item" data-target="<%- customer.name %>"><%- customer.name %></li>
+                <% }) %>
+            </ul>
+            <hr width="90%" size=".5" color="#ccc">
             <div style="display: flex; flex-direction: column;">
-                <input placeholder="Name..." type="text" id="name.field" maxlength="20">
-                <small id="name.tip"></small>
+                <input placeholder="Password..." type="text" id="customer.field" maxlength="20">
+                <small id="customer.tip"></small>
             </div>
-            <div class="btn" id="name.btn">Ready!</div>
+            <div class="btn" id="customer.btn">Ready!</div>
         </div>
     </div>
     <!-- Local CodeMirror editor -->
     <div class="wrapper" id="wrapper">
         <div class="editor" id="my-editor">
+            <span class="pause" id="pause-background" style="display: none;">
+                <img src="/img/pause.png" width="90" height="90" >
+                <label>PAUSED</label>
+            </span>
             <span id="editor"></span>
         </div>
     </div>
@@ -143,16 +160,33 @@
         </span>
     </span>
 
+    <!-- Right Tools Bar -->
+    <span class="right-bar" id="right-bar" data-open="0">
+        <span id="build.btn">
+            <img src="/img/build.png" title="Build Project" width="30" height="30" >
+        </span>
+        <span id="disconnect.btn">
+            <img src="/img/broken-link.png" title="Disconnect" width="28" height="28">
+        </span>
+        <span id="pause.btn">
+            <img src="/img/pause-play.png" title="Pause/Unpause me" width="28" height="28">
+        </span>
+    </span>
+
     <!-- <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
     <script>
 
-        const extension = 'js';
+        const extension = 'html';
 
         const config = {
             js: {
                 name: 'JavaScript',
                 commentUnit: '/*'
+            },
+            html: {
+                name: 'htmlmixed',
+                commentUnit: '<!--'
             }
         }
 
@@ -163,7 +197,6 @@
             document.getElementById('language-info').innerText = config[extension].name;
         }
 
-        console.log('<%- theme %>')
 
         const editor = new Editor(document.getElementById('editor'), config, extension, false, {
             theme: '<%- theme %>'
@@ -174,8 +207,75 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+        var amIOwner = false, paused = false, canShowEditingToast = true;
+        const socket = io();
+        var name = "member#" + Math.round(Math.random() * 100) + 1;
+
+        var toasts = []
+
+        function toast(type, content) {
+            if(toasts.length > 0) {
+                var intervalID = setInterval(() => {
+                    if(toasts.length <= 0) {
+                        clearInterval(intervalID)
+                        toast(type, content)
+                    }
+                }, 200);
+                return intervalID;
+            }
+            const toastBody = document.createElement('div')
+            toastBody.style.position = 'absolute'
+            toastBody.style.bottom = '50px'
+            toastBody.style.padding = '10px 7px'
+            toastBody.style.borderRadius = '5px'
+            toastBody.style.boxShadow = '0 0 10px rgba(100, 100, 100, .6)'
+            toastBody.style.transition = '1.5s'
+            toastBody.style.opacity = 0
+            toastBody.style.fontFamily = '"Roboto", sans-serif'
+            toastBody.style.fontWeight = '500'
+            toastBody.style.fontSize = '14px'
+            toastBody.style.right = '-100%'
+            toastBody.style.userSelect = 'none'
+            toastBody.style.pointerEvents = 'none'
+            const txtNode = document.createTextNode(content)
+            toastBody.appendChild(txtNode)
+            if(type === 'success') {
+                toastBody.style.background = 'lime'
+                toastBody.style.border = '2px solid green'
+                toastBody.style.color = '#000'
+            } else if(type === 'error') {
+                toastBody.style.background = 'crimson'
+                toastBody.style.border = '2px solid red'
+                toastBody.style.color = '#000'
+            } else if (type === 'warning') {
+                toastBody.style.background = 'yellow'
+                toastBody.style.border = '2px solid orange'
+                toastBody.style.color = '#000'
+            } else {
+                toastBody.style.background = 'dodgerblue'
+                toastBody.style.border = '2px solid blue'
+                toastBody.style.color = '#000'
+            }
+            document.body.appendChild(toastBody)
+            toasts.push(toastBody)
+            toastBody.dataset.index = toasts.length - 1
+            setTimeout(() => {
+                toastBody.style.right = '20px'
+                setTimeout(() => {
+                    toastBody.style.opacity = 1
+                }, 200);
+            }, 100);
+            setTimeout(() => {
+                toastBody.style.right = '-100%'
+                toastBody.style.opacity = 0
+                setTimeout(() => {
+                    toastBody.remove()
+                    toasts = toasts.filter((el, index) => index !== Number(el.dataset.index))
+                }, 500);
+            }, 3000);
+        }
+
         function addUserEditor(id, name, isOwner, text = '', amIOwner) {
-            console.log(amIOwner)
             if(!isOwner && !amIOwner) return;
 
             const newEditor = document.createElement('div')
@@ -197,7 +297,30 @@
             name_field.style.position = 'absolute'
             name_field.style.bottom = '30px'
             name_field.style.right = '10px'
+            name_field.style.padding = '10px'
+            name_field.style.borderRadius = '5px 2px'
+            name_field.style.background = 'dodgerblue'
+            name_field.style.color = '#fefefe'
             newEditor.appendChild(name_field)
+
+            /* 
+                <img src="/img/pause.png" width="90" height="90" >
+                <label>PAUSED</label>
+            */
+            const pauseModal = document.createElement('span')
+            pauseModal.className = 'pause'
+            pauseModal.style.display = 'none'
+
+            const img = document.createElement('img')
+            img.src = '/img/pause.png'
+            img.width = '90'
+            img.height = '90'
+            const label = document.createElement('label')
+            label.textContent = 'PAUSED'
+
+            pauseModal.appendChild(img)
+            pauseModal.appendChild(label)
+            newEditor.appendChild(pauseModal)
         }
 
         function deleteUser(id) {
@@ -206,36 +329,149 @@
             document.getElementById('wrapper').removeChild(editor)
         }
 
+        function buildProject() {
+            if(!editor.editor.getValue()) return toast("error", "Cannot build empty code...")
+            var buildWindow = window.open()
+            buildWindow.document.write(editor.editor.getValue())
+        }
+
+        function disconnect() {
+            window.location.replace('/')
+        }
+        
+        function pauseUnpause() {
+            if(!paused) document.getElementById('pause-background').style.display = 'flex'
+            else document.getElementById('pause-background').style.display = 'none'
+            if(paused) paused = false
+            else paused = true
+
+            console.log('pausing', name)
+
+            if(paused) {
+                socket.emit('pause', {
+                    id: id,
+                    name: name,
+                    user: socket.id
+                })
+            } else {
+                socket.emit('unpause', {
+                    id: id,
+                    name: name,
+                    user: socket.id
+                })
+            }
+        }
+
+        function loginCustomer(roomName, userName, password) {
+            fetch('/customer-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    name: userName,
+                    roomName: roomName,
+                    password: password,
+                    roomID: id
+                })
+            })
+                .then(res => res.json())
+                .then((json) => {
+                    const { status, reason, members } = json
+                    if(status === true) {
+                        document.getElementById('customer.tip').textContent = 'Successfully!'
+                        setTimeout(() => {
+                            document.getElementById('customer.modal').style.display = 'none'
+                        }, 100);
+                        name = userName
+                        members.forEach(member => {
+                            addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner)
+                        })
+                    } else if(reason === 'incorrect') {
+                        document.getElementById('customer.tip').textContent = 'Incorrect password...'
+                        setTimeout(() => {
+                            document.getElementById('customer.tip').textContent = ''
+                        }, 2000);
+                    } else {
+                        document.getElementById('customer.tip').textContent = 'Server error!'
+                        setTimeout(() => {
+                            window.location.replace('/')
+                        }, 2000);
+                    }
+                    document.getElementById('customer.btn').textContent = 'Ready!'
+                    document.getElementById('customer.btn').style.background = 'dodgerblue'
+                })
+                .catch(err => console.log(err))
+        }
+
         const url = location.href[location.href.length - 1] === '/' ? location.href.slice(0, location.href.length-1) : location.href
         const id = url.split('/').pop()
 
-        console.log(id)
-
-        var amIOwner = null
-
         if(id) {
             function setup() {
-                const socket = io();
-                const name = document.getElementById('name.field').value
-                document.getElementById('my-editor').style.border = '3px solid orange'
+
+                document.getElementById('build.btn').onclick = buildProject
+                document.getElementById('disconnect.btn').onclick = disconnect
+                document.getElementById('pause.btn').onclick = pauseUnpause
+
+                document.getElementById('customer.btn').onclick = function() {
+                    if(amIOwner) return
+                    if(document.getElementById('customer.btn').textContent !== 'Ready!') return;
+                    const password = document.getElementById('customer.field').value;
+                    if(!password) return (() => {
+                        document.getElementById('customer.tip').textContent = 'Type a password...'
+                        setTimeout(() => {
+                            document.getElementById('customer.tip').textContent = ''
+                        }, 3000);
+                    })()
+                    const selected = document.querySelector('.customer-item.selected');
+                    if(!selected) return (() => {
+                        document.getElementById('customer.tip').textContent = 'Choouse your customer account...'
+                        setTimeout(() => {
+                            document.getElementById('customer.tip').textContent = ''
+                        }, 3000);
+                    })()
+                    const customerName = selected.textContent;
+                    if(!customerName) return;
+                    document.getElementById('customer.btn').textContent = 'Loading...'
+                    document.getElementById('customer.btn').style.background = 'orangered'
+                    loginCustomer(name, customerName, password)
+                }
+
+                document.querySelectorAll('.customer-item').forEach(el => {
+                    el.addEventListener('click', function() {
+                        const isSelected = ("selected" in this.classList)
+                        if(document.querySelector('.customer-item.selected')) document.querySelector('.customer-item.selected').classList.remove("selected")
+                        if(!isSelected) this.classList.add("selected")
+                    })
+                })
+
+                document.getElementById('right-bar').onmouseover = function() {
+                    document.getElementById('right-bar').style.right = 0
+                }
+
+                document.getElementById('right-bar').onmouseleave = function() {
+                    document.getElementById('right-bar').style.right = '-40px'
+                }
+
+                document.getElementById('my-editor').style.border = '2.5px solid orange'
                 socket.emit('join-room', {
                     id,
                     name
                 })
-                socket.on('executed-code', ({ sandbox, status, name: exeName, result }) => {
-                    console.log(`Executed code by ${exeName} with ${status} status`, result)
-                    console.log(sandbox)
-                })
-                socket.on('joined-room', ({ status, roomID, userID, members }) => {
+                socket.on('joined-room', ({ status, roomID, userID, members, owner }) => {
                     if(status)
                     {
-                        if(amIOwner === null) amIOwner = {
-                            is: members.length <= 0,
-                        }
-                        console.log(amIOwner)
+                        toast("success", `Joined successfully.`)
+                        if(members.length > 0) {
+                            document.getElementById('customer.modal').style.display = 'flex'
+                            amIOwner = false;
+                        } else amIOwner = true
+                        if(amIOwner === true) name = '<%- name %>'
                         members.forEach(member => {
-                            addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner.is)
+                            addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner)
                         })
+                        document.getElementById('users-info').textContent = `${members.length + 1} members connected (with you)`
                         editor.editor.on('change', function (cm) {
                             socket.emit('text-change', {
                                 text: cm.getValue(),
@@ -244,43 +480,86 @@
                                 user: userID
                             })
                         })
+                        editor.editor.on('cursorActivity', function (cm) {
+                            const pos = cm.getCursor();
+                            socket.emit('cursor-change', {
+                                id: id,
+                                name: name,
+                                pos: pos,
+                                user: socket.id
+                            })
+                        })
+                        editor.editor.on('keyup', function(cm, event) {
+                            if(event.which <= 90 && event.which >= 65 && !event.shiftKey && !event.ctrlKey) {
+                                if (!cm.state.completionActive && /*Enables keyboard navigation in autocomplete list*/
+                                    event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/
+                                        CodeMirror.commands.autocomplete(cm, null, { completeSingle: false });
+                                }
+                            }
+                        })
                     }
                     else
-                        console.log(`No such room: ${roomID}!`)
+                        window.location.replace('/')
                 })
-                socket.on('user-join', ({ id, name }) => {
-                    console.log(`New user connected ${name} (${id})`)
-                    addUserEditor(id, name, false, '', amIOwner.is ? amIOwner.is : false)
+                socket.on('user-join', ({ id, name, membersCount }) => {
+                    document.getElementById('users-info').textContent = `${membersCount + 1} members connected (with you)`
+                    addUserEditor(id, name, false, '', amIOwner)
+                    toast("success", `${name} connected.`)
+                    toast("warning", `${name} logging...`)
                 })
-                socket.on('user-leave', ({id, name, isOwner}) => {
-                    console.log(`User ${name} (${id}) leaved!`)
-                    if(isOwner) window.location.pathname = '/'
+                socket.on('user-logged', ({ id, name }) => {
+                    if(!remoteEditors[id]) return;
+                    const editor = document.body.querySelector(`div[data-id="${id}"]`)
+                    if(!editor) return
+                    editor.querySelector('label').textContent = name
+                    toast("info", `${name} logged.`)
+                })
+                socket.on('user-paused', ({ id, name }) => {
+                    console.log('user-paused', id, name)
+                    if(!remoteEditors[id]) return;
+                    const pause = document.body.querySelector(`.editor[data-id="${id}"]`).querySelector('.pause')
+                    if(!pause) return;
+                    pause.style.display = 'flex'
+                    toast("warning", `${name} paused.`)
+                })
+                socket.on('user-unpaused', ({ id, name }) => {
+                    console.log('user-unpaused', id, name)
+                    if (!remoteEditors[id]) return;
+                    const pause = document.body.querySelector(`div[data-id="${id}"] > .pause`)
+                    if (!pause) return;
+                    pause.style.display = 'none'
+                    toast("info", `${name} unpaused.`)
+                })
+                socket.on('user-leave', ({id, name, isOwner, membersCount}) => {
+                    document.getElementById('users-info').textContent = `${membersCount} members connected (with you)`
+                    if(isOwner) window.location.replace('/')
                     deleteUser(id)
+                    toast("error", `${name} leaved.`)
                 })
                 window.onbeforeunload = function() {
                     socket.emit('disconnect')
                 }
                 socket.on('text-change', ({ text, name, id }) => {
-                    if(!remoteEditors[id]) console.log(`No such user ${name} (${id})`)
+                    if(!remoteEditors[id]) addUserEditor(id, name, false, text, amIOwner)
                     else {
+                        if(canShowEditingToast) {
+                            toast("warning", `${name} typing...`)
+                            canShowEditingToast = false;
+                            setTimeout(() => {
+                                canShowEditingToast = true
+                            }, 5000);
+                        }
                         remoteEditors[id].setValue(text)
                     }
                 })
+                socket.on('cursor-change', ({ pos, name, id }) => {
+                    if(!remoteEditors[id]) addUserEditor(id, name, false, '', amIOwner)
+                    else {
+                        remoteEditors[id].editor.setCursor(pos)
+                    }
+                })
             }
-            document.getElementById('name.btn').onclick = function(e) {
-                e.preventDefault()
-                if(!document.getElementById('name.field').value){
-                    document.getElementById('name.field').style.border = '1px solid crimson'
-                    document.getElementById('name.tip').textContent = 'Enter a correct name...'
-                    setTimeout(function() {
-                        document.getElementById('name.tip').textContent = ''
-                        document.getElementById('name.field').style.border = '0'
-                    }, 5000)
-                    return;
-                }
-                document.getElementById('name.modal').style.display = 'none'
-                setup()
-            }
+            setup()
         }
     </script>
 </body>

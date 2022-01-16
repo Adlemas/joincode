@@ -14,6 +14,8 @@ const FormData = require("form-data");
 const fetch = require("node-fetch");
 if (!globalThis.fetch) globalThis.fetch = fetch;
 
+const multer = require('multer')
+
 const requestIp = require("request-ip");
 
 Date.prototype.addHours = function (h) {
@@ -30,6 +32,7 @@ const client = new OAuth2Client({
 
 const mongoose = require("mongoose");
 const User = require("./models/User");
+const Customer = require("./models/Customer");
 
 const PORT = 4000;
 const CLIENT_ID =
@@ -47,6 +50,27 @@ app.use("/jquery", express.static(__dirname + "/node_modules/jquery/dist/"));
 app.use(requestIp.mw());
 
 app.set("view engine", "ejs");
+
+function addProfile(id, doc, type, ip) {
+  const createdAt = new Date();
+  const expiredAt = new Date(createdAt);
+  expiredAt.addHours(12);
+  profile_rooms[id] = {
+    email: doc.email,
+    username: doc.name,
+    createdAt: createdAt,
+    expiredAt: expiredAt,
+    verified: doc.verified,
+    signType: type,
+    accessIps: [ip],
+    themes: doc.themes,
+    orders: doc.orders,
+    transactions: doc.transactions,
+    customers: doc.customers,
+    rate: doc.rate,
+    videos: doc.videos
+  }
+}
 
 app.get("/", (req, res) => {
   res.statusCode = 200;
@@ -79,7 +103,6 @@ app.get("/signup", (req, res) => {
 
 app.post("/signup", async (req, res) => {
   if (req.body?.type === "by-hand") {
-    // FIXME: add sign up by hands optimizer
     const username = req.body.username;
     const email = req.body.email;
     const password = req.body.password;
@@ -89,12 +112,9 @@ app.post("/signup", async (req, res) => {
         reason: "no-data",
       });
 
-    console.log(username, email, password);
-
     User.findOne({ name: username })
       .exec()
       .then((doc) => {
-        console.log(doc);
         if (doc != null)
           return res.send({
             status: false,
@@ -173,20 +193,7 @@ app.post("/signin", async (req, res) => {
         var profileID = uuid.v4();
         while (profile_rooms[profileID]) profileID = uuid.v4();
 
-        const createdAt = new Date();
-        const expiredAt = new Date(createdAt);
-        expiredAt.addHours(12);
-
-        profile_rooms[profileID] = {
-          email: doc.email,
-          username: doc.name,
-          createdAt: createdAt,
-          expiredAt: expiredAt,
-          verified: doc.verified,
-          signType: "with-google",
-          accessIps: [ip],
-          themes: doc.themes
-        };
+        addProfile(profileID, doc, 'with-google', ip)
 
         res.send({
           status: true,
@@ -217,20 +224,7 @@ app.post("/signin", async (req, res) => {
           var profileID = uuid.v4();
           while (profile_rooms[profileID]) profileID = uuid.v4();
 
-          const createdAt = new Date();
-          const expiredAt = new Date(createdAt);
-          expiredAt.addHours(12);
-
-          profile_rooms[profileID] = {
-            email: doc.email,
-            username: doc.name,
-            verified: doc.verified,
-            createdAt: createdAt,
-            expiredAt: expiredAt,
-            signType: "by-hand",
-            accessIps: [ip],
-            themes: doc.themes
-          };
+          addProfile(profileID, doc, 'by-hand', ip)
 
           res.send({
             status: true,
@@ -263,23 +257,43 @@ app.get("/profile/:id", (req, res) => {
     return res.status(404).sendFile(path.join(__dirname, "/pages/404.html"));
   res.status(200).render(path.join(__dirname, "/pages/profile.ejs"), {
     ...profile_rooms[id],
+    urlID: id
   });
 });
 
 app.post('/sync', (req, res) => {
-  const { theme, name} = req.body;
-   var id = uuid.v4()
-   while(rooms[id]) id = uuid.v4()
-   rooms[id] = {
-     members: [],
-     owner: null,
-     theme: theme,
-     ownerName: name
-   }
-   res.status(200).send({
-     status: true,
-     id: id
-   })
+  const { theme, name, email } = req.body;
+
+  if(!theme || !name || !email)
+    return res.send({
+      status: false,
+      reason: 'no-data'
+    })
+
+  User.findOne({ email: email }).exec()
+    .then(doc => {
+      if(!doc)
+        return res.send({
+          status: false,
+          reason: 'no-user'
+        })
+
+        const customers = doc.customers
+
+        var id = uuid.v4()
+        while(rooms[id]) id = uuid.v4()
+        rooms[id] = {
+          members: [],
+          owner: null,
+          theme: theme,
+          ownerName: name,
+          customers: customers || []
+        }
+        res.status(200).send({
+          status: true,
+          id: id
+        })
+    })
 })
 
 app.get("/sync/:id", (req, res) => {
@@ -288,13 +302,14 @@ app.get("/sync/:id", (req, res) => {
   res.statusCode = 200;
   res.render(path.join(__dirname, "/pages/synchronouse.ejs"), {
     theme: rooms[id].theme,
-    name: rooms[id].ownerName
+    name: rooms[id].ownerName,
+    customers: rooms[id].customers
   });
 });
 
 app.post("/verify", (req, res) => {
-  const { email, code } = req.body;
-  if (!email || !code)
+  const { email, code, urlID } = req.body;
+  if (!email || !code || !urlID)
     return res.send({
       status: false,
       reason: "no-data",
@@ -328,8 +343,21 @@ app.post("/verify", (req, res) => {
             status: false,
             reason: "serve-error",
           });
+
+        const identifier = uuid.v4()
+
+        const ip = profile_rooms[urlID].accessIps[0]
+        const type = profile_rooms[urlID].signType
+                  
+        addProfile(identifier, doc, type, ip);
+        
+        console.log(profile_rooms)
+        delete profile_rooms[urlID];
+        console.log(profile_rooms)
+
         res.send({
           status: true,
+          newURL: identifier
         });
       });
     });
@@ -375,7 +403,6 @@ app.post("/verifing", (req, res) => {
         })
           .then((res) => res.json())
           .then((json) => {
-            console.log(json);
             if (json.status === true) {
               verify_users[email].status = "delivered";
               res.send({
@@ -397,60 +424,390 @@ app.post("/verifing", (req, res) => {
     });
 });
 
+app.post("/customer", (req, res) => {
+  const { email, name, password, uri, urlID } = req.body;
+
+  if(!name || !password || !email || !urlID)
+    return res.send({
+      status: false,
+      reason: 'no-data'
+    })
+
+  if(!profile_rooms[urlID])
+    return res.send({
+      status: false,
+      reason: 'no-room'
+    })
+
+  User.findOne({ email: email }).exec()
+    .then(doc => {
+      if(!doc)
+        return res.send({
+          status: false,
+          reason: 'no-user'
+        })
+
+      Customer.findOne({ name: name }).exec()
+        .then(customer => {
+          if(customer)
+            return res.send({
+              status: false,
+              reason: 'exists'
+            })
+
+          const newCustomer = new Customer({
+            name: name,
+            password: Buffer.from(password).toString('base64'),
+            uri: uri ? uri : null
+          })
+
+          newCustomer.save()
+            .then(result => {
+              if(!result)
+                return res.send({
+                  status: false,
+                  reason: 'serve-error'
+                })
+
+              doc.customers.push({
+                name: name,
+                uri: uri ? uri : null
+              })
+              doc.save()
+                .then(r => {
+                  if(!r)
+                    return res.send({
+                      status: false,
+                      reason: 'serve-error'
+                    })
+
+                    const identifier = uuid.v4()
+                    
+                    const ip = req.clientIp
+                    const type = profile_rooms[urlID].signType
+
+                    addProfile(identifier, doc, type, ip)
+                    
+                    console.log(profile_rooms)
+                    delete profile_rooms[urlID];
+                    console.log(profile_rooms)
+
+                  res.send({
+                    status: true,
+                    name: name,
+                    uri: uri ? uri : null,
+                    newURL: identifier
+                  })
+                })
+            })
+        })
+    })
+})
+
+function fileFilter (file) {
+  if(['mp4', '.mp4', 'wav', '.wav', 'mpeg', '.mpeg', '.png', 'png', 'jpg', '.jpg', 'jpeg', '.jpeg'].includes(path.extname(file)))
+    return true
+  else
+    return false
+}
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    if(file.fieldname === 'preview')
+      cb(null, path.join(__dirname, "/public/preview/"))
+    else
+      cb(null, path.join(__dirname, "/public/uploads/"))
+  },
+  filename: function (req, file, cb) {
+    const status = fileFilter(file.originalname);
+    if(!status)
+      return cb(null, false)
+    const uniqueSuffix = uuid.v4() + '-' + Date.now();
+    cb(null, uniqueSuffix + path.extname(file.originalname))
+  },
+})
+
+const upload = multer({ storage: storage })
+
+app.post('/video', upload.fields([{
+  name: 'video',
+  maxCount: 1
+}, {
+  name: 'preview',
+  maxCount: 1
+}]), (req, res) => {
+  const files = req.files
+  const { title, description, playlist: playlistName, email, urlID } = req.body
+
+  if(!title || !description || !playlistName || !email)
+    return res.send({
+      status: false,
+      reason: 'no-data'
+    })
+
+  if(!files)
+    return res.send({
+      status: false,
+      reason: 'no-files'
+    })
+
+  const filesInfo = {
+    video: {
+      
+    },
+    preview: {
+
+    }
+  }
+
+  Object.values(files).forEach(file => {
+    if(file[0].fieldname === 'preview')
+    {
+      filesInfo.preview.name = file[0].originalname
+      filesInfo.preview.id = file[0].filename
+    }
+    else {
+      filesInfo.video.name = file[0].originalname
+      filesInfo.video.id = file[0].filename
+    }
+  })
+
+  User.findOne({ email: email }).exec()
+    .then(doc => {
+      if(!doc)
+        return res.send({
+          status: false,
+          reason: 'no-user'
+        })
+
+      var Found = -1
+      doc.videos.forEach((playlist, index) => {
+        if(playlist.title === playlistName)
+          Found = index
+      })
+
+      if(Found !== -1)
+      {
+        doc.videos[Found].sources.push({
+          src: '/uploads/' + filesInfo.video.id,
+          preview: '/preview/' + filesInfo.preview.id,
+          title: title,
+          views: 0,
+          likes: 0,
+          description: description
+        })
+      }
+      else {
+        doc.videos.push({
+          title: playlistName,
+          sources: [
+            {
+              src: '/uploads/' + filesInfo.video.id,
+              preview: '/preview/' + filesInfo.preview.id,
+              title: title,
+              views: 0,
+              likes: 0,
+              description: description
+            }
+          ]
+        })
+      }
+
+      doc.save()
+        .then(r => {
+          if(!r)
+            return res.send({
+              status: false,
+              reason: 'serve-error'
+            })
+
+          var identifier = uuid.v4()
+          while(profile_rooms[identifier]) identifier = uuid.v4()
+
+          addProfile(identifier, doc, profile_rooms[urlID].signType, req.clientIp)
+
+          delete profile_rooms[urlID]
+
+          res.send({
+            status: true,
+            ...filesInfo,
+            newURL: identifier
+          })
+        })
+        .catch(err => {
+          return res.send({
+            status: false,
+            reason: 'serve-error'
+          })
+        })
+    })
+})
+
+app.post('/delete-playlist', (req, res) => {
+  const { email, playlist: playlistName, urlID } = req.body;
+
+  if(!email || !playlistName || !urlID)
+    return res.send({
+      status: false,
+      reason: 'no-data',
+      data: {
+        email, playlist: playlistName, urlID
+      }
+    })
+
+  User.findOne({ email: email }).exec()
+    .then(doc => {
+      if(!doc || !profile_rooms[urlID])
+        return res.send({
+          status: false,
+          reason: 'no-user'
+        })
+
+      var Found = false
+      doc.videos.forEach((playlist, index) => {
+        if(playlist.title === playlistName)
+        {
+          doc.videos = doc.videos.filter((val, i) => {
+            if(i === index)
+            {
+              Found = true
+              return false;
+            }
+            else return true;
+          })
+        }
+      })
+
+      var identifier = uuid.v4()
+      while(profile_rooms[identifier]) identifier = uuid.v4()
+
+      addProfile(identifier, doc, profile_rooms[urlID].signType, profile_rooms[urlID].accessIps[0])
+      delete profile_rooms[urlID]
+
+      if(Found === true)
+      {
+        doc.save()
+          .then(result => {
+            if(!result)
+              res.send({
+                status: false,
+                reason: 'serve-error'
+              })
+
+              res.send({
+                status: true,
+                newURL: identifier
+              })
+          })
+      }
+      else
+        res.send({
+          status: false,
+          reason: 'not-found'
+        })
+    })
+})
+
 app.get("*", function (req, res) {
   res.status(404).sendFile(path.join(__dirname, "/pages/404.html"));
 });
 
-io.on("connection", (socket) => {
+app.post("/customer-login", ({ body: { roomName, name, password, roomID } }, res) => {
+  if(!name || !password || !roomID)
+    return res.send({
+      status: false,
+      reason: 'no-data'
+    })
 
-  socket.on("execute-code", ({ code, roomID, name }) => {
-    if (!rooms[roomID]) {
-      io.to(socket.id).emit("executed-code", {
-        status: false,
-        reason: "no-such-room",
-      });
-      return;
-    }
-    var result = "";
+  if(!rooms[roomID])
+    return res.send({
+      status: false,
+      reason: 'no-room'
+    })
+  
+  Customer.findOne({ name: name }).exec()
+    .then(doc => {
+      if(!doc)
+        return res.send({
+          status: false,
+          reason: 'no-user'
+        })
 
-    const sandbox = {
-      console: {
-        log: function (...args) {
-          result += args.join(" ");
-          result += "\n";
-        },
-      },
-    };
-    vm.createContext(sandbox);
+      if(doc.password !== Buffer.from(password).toString('base64'))
+        return res.send({
+          status: false,
+          reason: 'incorrect'
+        })
 
-    vm.runInContext(code, sandbox);
+      var Found = -1
+      rooms[roomID].members.forEach((member, index, arr) => {
+        if(member.name === roomName) {
+          Found = index
+          return;
+        }
+      })
 
-    rooms[roomID].members.forEach((member) => {
-      io.to(member.id).emit("executed-code", {
+      if(Found <= -1)
+        return res.send({
+          status: false,
+          reason: 'serve-error'
+        })
+
+      rooms[roomID].members[Found].name = name;
+
+      rooms[roomID].members.filter(member => member.id !== Found).forEach(member => {
+        if(!member.paused) io.to(member.id).emit('user-logged', {
+          id: rooms[roomID].members[Found].id,
+          name: name
+        })
+      })
+
+      const prepared = []
+
+      rooms[roomID].members.forEach(member => {
+        prepared.push({
+          ...member,
+          isOwner: member.id === rooms[roomID].owner
+        })
+      })
+      
+      res.send({
         status: true,
-        sandbox: sandbox,
-        name: name,
-        result: result,
-      });
-    });
-  });
+        members: prepared
+      })
+    })
+    .catch(err => {
+      res.send({
+        status: false,
+        reason: 'serve-error'
+      })
+    })
+})
+
+io.on("connection", (socket) => {
 
   socket.on("join-room", ({ id, name }) => {
     var status = false;
     if (rooms[id]) {
       status = true;
-      if (rooms[id].members.length <= 0) rooms[id].owner = socket.id;
-      rooms[id].members.map((val) => {
+      var isOwner = false
+      if (rooms[id].members.length <= 0) {
+        rooms[id].owner = socket.id;
+        isOwner = true
+      }
+      rooms[id].members.map((val, index, arr) => {
         io.to(val.id).emit("user-join", {
           id: socket.id,
           name: name,
+          membersCount: arr.length
         });
       });
       rooms[id].members.push({
         id: socket.id,
-        name: name,
-        isOwner: rooms[id].owner === socket.id,
-        text: ''
+        name: isOwner ? rooms[id].ownerName : name,
+        text: '',
+        pos: {line: 0, ch: 0, sticky: null},
+        paused: false
       });
     }
     io.to(socket.id).emit("joined-room", {
@@ -460,18 +817,64 @@ io.on("connection", (socket) => {
       members: rooms[id].members.filter((val) => {
         return val.id !== socket.id;
       }),
+      owner: rooms[id].owner
     });
   });
 
-  socket.on("text-change", ({ name, text, id, user }) => {
+  socket.on('pause', ({ id, name, user }) => {
+    if(!rooms[id]) return;
     rooms[id].members.forEach((member, index) => {
-      io.to(member.id).emit("text-change", {
-        text: text,
-        name: name,
-        id: user,
-      });
-      if(member.id === user) {
+      if(member.id !== user)
+        if(!member.paused) io.to(member.id).emit("user-paused", {
+          name: name,
+          id: user,
+        });
+      else if(member.id === user) {
+        rooms[id].members[index].paused = true
+      }
+    });
+  })
+
+  socket.on('unpause', ({ id, name, user }) => {
+    if(!rooms[id]) return;
+    rooms[id].members.forEach((member, index) => {
+      if(member.id !== user)
+        if(!member.paused) io.to(member.id).emit("user-unpaused", {
+          name: name,
+          id: user,
+        });
+      else if(member.id === user) {
+        rooms[id].members[index].paused = false
+      }
+    });
+  })
+
+  socket.on("text-change", ({ name, text, id, user }) => {
+    if(!rooms[id]) return;
+    rooms[id].members.forEach((member, index) => {
+      if(member.id !== user)
+        if(!member.paused) io.to(member.id).emit("text-change", {
+          text: text,
+          name: name,
+          id: user,
+        });
+      else if(member.id === user) {
         rooms[id].members[index].text = text
+      }
+    });
+  });
+
+  socket.on("cursor-change", ({ name, pos, id, user }) => {
+    if(!rooms[id]) return;
+    rooms[id].members.forEach((member, index) => {
+      if(member.id !== user)
+        if(!member.paused) io.to(member.id).emit("cursor-change", {
+          pos: pos,
+          name: name,
+          id: user,
+        });
+      else if(member.id === user) {
+        rooms[id].members[index].pos = pos
       }
     });
   });
@@ -491,11 +894,12 @@ io.on("connection", (socket) => {
       });
     });
     roomIDs.forEach(({ room, name }) => {
-      rooms[room].members.forEach((user) => {
+      rooms[room].members.forEach((user, index, arr) => {
         io.to(user.id).emit("user-leave", {
           id: socket.id,
           name: name,
-          isOwner: rooms[room].owner === socket.id
+          isOwner: rooms[room].owner === socket.id,
+          membersCount: arr.length
         });
       });
     });
