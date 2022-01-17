@@ -152,6 +152,9 @@
         <!-- Left side buttons -->
         <span class="left">
             <!-- Language Information -->
+            <span id="voice.btn">
+                Voice Chat
+            </span>
             <span id="language-info"><%- name %>'s Lesson</span>
         </span>
         <!-- Right side buttons -->
@@ -172,6 +175,31 @@
             <img src="/img/pause-play.png" title="Pause/Unpause me" width="28" height="28">
         </span>
     </span>
+
+    <span id="voice.left.float" class="voice-chat-left" style="display: none;">
+        <ul class="voice-chat-items">
+        </ul>
+    </span>
+    <span id="voice.right.float" class="voice-chat-right" style="display: none;">
+        <ul class="voice-chat-items">
+    
+        </ul>
+    </span>
+    <span id="voice.bottom.float" class="voice-chat-bottom" style="display: none;">
+        <ul class="voice-chat-items">
+    
+        </ul>
+    </span>
+
+    <span id="voice.float" draggable="false" class="voice-chat" style="display: none;">
+        <ul class="voice-chat-items">
+            
+        </ul>
+    </span>
+
+    <span style="display: none;" id="voice.left.placeholder" class="voice-chat-left holder"></span>
+    <span style="display: none;" id="voice.right.placeholder" class="voice-chat-right holder"></span>
+    <span style="display: none;" id="voice.bottom.placeholder" class="voice-chat-bottom holder"></span>
 
     <!-- <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
@@ -205,12 +233,149 @@
 
     </script>
 
+    <!-- Voice Chat -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        var amIOwner = false, paused = false, canShowEditingToast = true;
         const socket = io();
-        var name = "member#" + Math.round(Math.random() * 100) + 1;
 
+        var hovering = null, voiceContext = document.getElementById('voice.float'), holders = {
+            left: document.getElementById('voice.left.placeholder'),
+            right: document.getElementById('voice.right.placeholder'),
+            bottom: document.getElementById('voice.bottom.placeholder'),
+        }, floats = {
+            left: document.getElementById('voice.left.float'),
+            right: document.getElementById('voice.right.float'),
+            bottom: document.getElementById('voice.bottom.float'),
+        }, side = null;
+
+        function movement() {
+            document.getElementById('voice.btn').onclick = function(e) {
+                voiceContext.style.display = 'flex'
+                Object.values(floats).forEach(float => float.style.display = 'none')
+                e.target.style.display = 'none'
+                voiceContext.style.left = '50px'
+                voiceContext.style.top = '100px'
+            }
+
+            function handleMouseUp(e) {
+                console.log("Mouse up!", side)
+                hovering = null
+
+                // console.log(e.target.className)
+                // if (e.target !== voiceContext && e.target.className !== 'voice-chat-items') return
+                if (!side) return;
+
+                document.getElementById('voice.btn').style.display = 'flex'
+
+                Object.values(holders).forEach(holder => holder.style.display = 'none')
+
+                if (side === 'left') {
+                    voiceContext.style.display = 'none'
+                    floats.left.style.display = 'flex'
+                } else if (side === 'right') {
+                    voiceContext.style.display = 'none'
+                    floats.right.style.display = 'flex'
+                } else if (side === 'bottom') {
+                    voiceContext.style.display = 'none'
+                    floats.bottom.style.display = 'flex'
+                }
+            }
+
+            function handleMouseDown(e) {
+                console.log("Mouse down!")
+                const pos = voiceContext.getBoundingClientRect()
+                console.log(pos)
+                var x = e.pageX, y = e.pageY;
+                if(!x && !y) {
+                    const touch = e.touches[0] || e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                    x = touch.clientX || touch.pageX
+                    y = touch.clientY || touch.pageY
+                }
+                hovering = [x - pos.x, y - pos.y]
+                console.log(hovering)
+            }
+
+            function handleMouseMove(e) {
+                if (hovering) {
+                    var x = (e.pageX - hovering[0]), y = (e.pageY - hovering[1])
+                    if (!x && !y) {
+                        const touch = e.touches[0] || e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+                        x = (touch.clientX || touch.pageX) - hovering[0]
+                        y = (touch.clientY || touch.pageY) - hovering[1]
+                    }
+
+                    voiceContext.style.left = x + 'px'
+                    voiceContext.style.top = y + 'px'
+
+                    Object.values(holders).forEach(holder => holder.style.display = 'none')
+
+                    side = null
+
+                    if (x <= 50) {
+                        holders.left.style.display = 'flex'
+                        side = 'left'
+                    } else if (x >= document.body.clientWidth - 300) {
+                        holders.right.style.display = 'flex'
+                        side = 'right'
+                    } else if (y >= document.body.clientHeight - 200) {
+                        holders.bottom.style.display = 'flex'
+                        side = 'bottom'
+                    }
+                }
+            }
+
+            voiceContext.onmousedown = handleMouseDown
+
+            voiceContext.onmouseup = handleMouseUp
+
+            window.onmousemove = handleMouseMove
+
+            window.ontouchmove = handleMouseMove
+            voiceContext.ontouchstart = handleMouseDown
+            voiceContext.ontouchend = handleMouseUp
+            voiceContext.ontouchcancel = handleMouseUp
+        }
+    
+        function addPeer(name, id) {
+            const user_color = `rgb(${Math.round(Math.random() * 255) + 1}, ${Math.round(Math.random() * 255) + 1}, ${Math.round(Math.random() * 255) + 1})`
+            document.body.querySelectorAll('.voice-chat-items').forEach(el => {
+                const item = document.createElement('span')
+                item.style.display = 'flex'
+                item.style.flexWrap = 'wrap'
+                item.style.alignItems = 'center'
+                item.style.color = '#fefefe'
+                item.style.fontFamily = '"Roboto", sans-serif'
+                item.style.textAlign = 'center'
+                item.style.fontWeight = 500;
+                item.dataset.id = id
+                
+                const uri = document.createElement('div')
+                uri.textContent = name[0].toUpperCase()
+                uri.style.width = '35px'
+                uri.style.height = '35px'
+                uri.style.borderRadius = '50%'
+                uri.style.display = 'flex'
+                uri.style.alignItems = 'center'
+                uri.style.justifyContent = 'center'
+                uri.style.background = user_color
+                uri.style.fontSize = '17px'
+                uri.style.fontWeight = 500
+                uri.style.fontFamily = '"Roboto", sans-serif'
+                
+                item.appendChild(uri)
+                const label = document.createElement('label')
+                label.appendChild(document.createTextNode(name))
+                item.appendChild(label)
+                el.appendChild(item)
+            })
+        }
+    </script>
+
+    <script>
+        var amIOwner = false, paused = false, canShowEditingToast = true;
+        var name = "member#" + Math.round(Math.random() * 100) + 1;
+        var customers = JSON.parse
+        
         var toasts = []
 
         function toast(type, content) {
@@ -224,7 +389,7 @@
                 return intervalID;
             }
             const toastBody = document.createElement('div')
-            toastBody.style.position = 'absolute'
+            toastBody.style.position = 'fixed'
             toastBody.style.bottom = '50px'
             toastBody.style.padding = '10px 7px'
             toastBody.style.borderRadius = '5px'
@@ -237,6 +402,7 @@
             toastBody.style.right = '-100%'
             toastBody.style.userSelect = 'none'
             toastBody.style.pointerEvents = 'none'
+            toastBody.style.zIndex = 100
             const txtNode = document.createTextNode(content)
             toastBody.appendChild(txtNode)
             if(type === 'success') {
@@ -327,6 +493,7 @@
             const editor = document.getElementById('wrapper').querySelector(`div[data-id="${id}"]`)
             if(!editor) return console.log(`Unexpected ${id} editor!`)
             document.getElementById('wrapper').removeChild(editor)
+            document.querySelectorAll(`span[data-id="${id}"]`).forEach(el => el.remove())
         }
 
         function buildProject() {
@@ -385,6 +552,7 @@
                         }, 100);
                         name = userName
                         members.forEach(member => {
+                            addPeer(member.name, member.id)
                             addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner)
                         })
                     } else if(reason === 'incorrect') {
@@ -409,6 +577,8 @@
 
         if(id) {
             function setup() {
+
+                movement()
 
                 document.getElementById('build.btn').onclick = buildProject
                 document.getElementById('disconnect.btn').onclick = disconnect
@@ -468,6 +638,8 @@
                             amIOwner = false;
                         } else amIOwner = true
                         if(amIOwner === true) name = '<%- name %>'
+                        if (amIOwner) 
+                            addPeer(name, userID)
                         members.forEach(member => {
                             addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner)
                         })
@@ -513,6 +685,7 @@
                     if(!editor) return
                     editor.querySelector('label').textContent = name
                     toast("info", `${name} logged.`)
+                    addPeer(name, id)
                 })
                 socket.on('user-paused', ({ id, name }) => {
                     console.log('user-paused', id, name)
