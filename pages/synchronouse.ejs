@@ -122,7 +122,7 @@
 <body>
     <!-- Take Name Modal -->
     <div class="customer-modal" id="customer.modal" style="display: none;">
-        <div class="customer-modal-content">
+        <div class="customer-modal-content" style="min-height: 350px;">
             <h3>Choouse your account:</h3>
             <ul style="width: 100%; display: flex; align-items: center; flex-direction: column;" id="customer-list">
                 <% customers.forEach(customer => { %>
@@ -159,6 +159,7 @@
         </span>
         <!-- Right side buttons -->
         <span class="right">
+            <span id="ms-info">? ms</span>
             <span id="users-info">Only you there</span>
         </span>
     </span>
@@ -173,6 +174,9 @@
         </span>
         <span id="pause.btn">
             <img src="/img/pause-play.png" title="Pause/Unpause me" width="28" height="28">
+        </span>
+        <span id="invite.btn">
+            <img src="/img/invite.png" title="Invite" width="28" height="28">
         </span>
     </span>
 
@@ -200,6 +204,29 @@
     <span style="display: none;" id="voice.left.placeholder" class="voice-chat-left holder"></span>
     <span style="display: none;" id="voice.right.placeholder" class="voice-chat-right holder"></span>
     <span style="display: none;" id="voice.bottom.placeholder" class="voice-chat-bottom holder"></span>
+
+    <div class="modal" id="confirm.modal" style="display: none;">
+        <div class="modal-content" style="width: 250px; max-width: 250px; min-height: 200px;">
+            <h3>Are you sure?</h3>
+            <h5 style="color: #ccc;">If you will disconnect, you will left all your code!</h5>
+            <div class="btn" id="confirm.btn">
+                Yes, exit
+            </div>
+            <div id="confirm.cancel.btn" class="btn" style="background-color: orangered;">
+                Cancel
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settings.modal" style="display: none;">
+        <div class="modal-content" style="width: 250px; min-height: 230px; max-width: 250px;">
+            <h3>Conference information:</h3>
+            <label>Identifier: <strong id="identifier-info">358 458 746</strong></label>
+            <label style="margin-left: -2px;">Access code: <strong id="code-info">354238</strong></label>
+            <div class="btn" id="copy.btn">Copy invite!</div>
+            <div class="btn" id="copy.link.btn">Copy invite link!</div>
+        </div>
+    </div>
 
     <!-- <script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jshint/2.13.1/jshint.min.js"></script>
@@ -237,6 +264,7 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         const socket = io();
+        const peers = []
 
         var hovering = null, voiceContext = document.getElementById('voice.float'), holders = {
             left: document.getElementById('voice.left.placeholder'),
@@ -258,11 +286,8 @@
             }
 
             function handleMouseUp(e) {
-                console.log("Mouse up!", side)
                 hovering = null
 
-                // console.log(e.target.className)
-                // if (e.target !== voiceContext && e.target.className !== 'voice-chat-items') return
                 if (!side) return;
 
                 document.getElementById('voice.btn').style.display = 'flex'
@@ -282,9 +307,7 @@
             }
 
             function handleMouseDown(e) {
-                console.log("Mouse down!")
                 const pos = voiceContext.getBoundingClientRect()
-                console.log(pos)
                 var x = e.pageX, y = e.pageY;
                 if(!x && !y) {
                     const touch = e.touches[0] || e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
@@ -292,7 +315,6 @@
                     y = touch.clientY || touch.pageY
                 }
                 hovering = [x - pos.x, y - pos.y]
-                console.log(hovering)
             }
 
             function handleMouseMove(e) {
@@ -325,18 +347,72 @@
             }
 
             voiceContext.onmousedown = handleMouseDown
-
-            voiceContext.onmouseup = handleMouseUp
+            voiceContext.ondblclick = function() {
+                voiceContext.style.display = 'none'
+                document.getElementById('voice.btn').style.display = 'flex'
+                hovering = null
+                side = null
+            }
+            Object.values(floats).forEach(float => {
+                float.ondblclick = function(e) {
+                    float.style.display = 'none'
+                    document.getElementById('voice.btn').style.display = 'flex'
+                }
+                hovering = null
+                side = null
+            })
 
             window.onmousemove = handleMouseMove
-
+            
             window.ontouchmove = handleMouseMove
             voiceContext.ontouchstart = handleMouseDown
             voiceContext.ontouchend = handleMouseUp
             voiceContext.ontouchcancel = handleMouseUp
+            voiceContext.onmouseup = handleMouseUp
+            Object.values(holders).forEach(holder => {
+                holder.onmouseup = handleMouseUp
+                holder.ontouchend = handleMouseUp
+                holder.ontouchcancel = handleMouseUp
+            })
+            document.getElementById('bottom-bar').onmouseup = handleMouseUp
+
+            document.getElementById('bottom-bar').ontouchend = handleMouseUp
+
+            document.getElementById('bottom-bar').ontouchcancel = handleMouseUp
+
+            window.onmouseup = function() {
+                hovering = null
+            }
+            window.ontouchend = function () {
+                hovering = null
+            }
+            window.ontouchcancel = function () {
+                hovering = null
+            }
         }
     
+        function setCurrentEditor(ID) {
+            if(EDITOR_CONTAINERS[ID].style.display === 'block') return;
+            Object.values(EDITOR_CONTAINERS).forEach(EDITOR => {
+                EDITOR.style.overflow = 'hidden'
+                EDITOR.style.maxWidth = '0px'
+                EDITOR.style.maxHeight = '0px'
+                EDITOR.style.minWidth = '0px'
+                EDITOR.style.minHeight = '0px'
+                EDITOR.style.width = '0px'
+                EDITOR.style.height = '0px'
+            })
+            EDITOR_CONTAINERS[ID].style.overflow = 'auto'
+            EDITOR_CONTAINERS[ID].style.maxWidth = '100%'
+            EDITOR_CONTAINERS[ID].style.maxHeight = '100%'
+            EDITOR_CONTAINERS[ID].style.minWidth = '50%'
+            EDITOR_CONTAINERS[ID].style.minHeight = '100%'
+            EDITOR_CONTAINERS[ID].style.width = '0px'
+            EDITOR_CONTAINERS[ID].style.height = '0px'
+        }
+
         function addPeer(name, id) {
+            peers[id] = []
             const user_color = `rgb(${Math.round(Math.random() * 255) + 1}, ${Math.round(Math.random() * 255) + 1}, ${Math.round(Math.random() * 255) + 1})`
             document.body.querySelectorAll('.voice-chat-items').forEach(el => {
                 const item = document.createElement('span')
@@ -348,6 +424,15 @@
                 item.style.textAlign = 'center'
                 item.style.fontWeight = 500;
                 item.dataset.id = id
+
+                if(id !== socket.id)
+                    item.onclick = function(e) {
+                        e.preventDefault()
+                        if(!peers[id]) return false;
+                        if(EDITOR_CONTAINERS[id]) {
+                            setCurrentEditor(id)
+                        }
+                    }
                 
                 const uri = document.createElement('div')
                 uri.textContent = name[0].toUpperCase()
@@ -364,19 +449,41 @@
                 
                 item.appendChild(uri)
                 const label = document.createElement('label')
-                label.appendChild(document.createTextNode(name))
+                label.appendChild(document.createTextNode(name.length > 9 ? name.slice(0, 9) + '...' : name))
                 item.appendChild(label)
                 el.appendChild(item)
+                peers[id].push({
+                    item
+                });
             })
         }
     </script>
 
     <script>
+        var localDate = null
+        function calculateMs(remoteDate) {
+            document.getElementById('ms-info').textContent = '? ms'
+            if(!localDate) return;
+
+            const difference = remoteDate - localDate
+
+            document.getElementById('ms-info').textContent = `${difference} ms`
+            if(difference <= 500) document.getElementById('ms-info').style.color = 'lime'
+            else if(difference <= 1000) document.getElementById('ms-info').style.color = 'orange'
+            else document.getElementById('ms-info').style.color = 'crimson'
+        }
+
         var amIOwner = false, paused = false, canShowEditingToast = true;
+        var keyID = sessionStorage.getItem('keyID')
         var name = "member#" + Math.round(Math.random() * 100) + 1;
         var customers = JSON.parse
+
+        var CONFERENCE_IDENTIFIER = ''
+        var CONFERENCE_ACCESS_CODE = ''
         
         var toasts = []
+        
+        var EDITOR_CONTAINERS = {}
 
         function toast(type, content) {
             if(toasts.length > 0) {
@@ -445,10 +552,21 @@
             if(!isOwner && !amIOwner) return;
 
             const newEditor = document.createElement('div')
-            newEditor.className = 'editor'
+            newEditor.classList.add('editor')
             newEditor.dataset.id = id;
+            if(Object.values(EDITOR_CONTAINERS)?.length) {
+                newEditor.style.overflow = 'hidden'
+                newEditor.style.maxWidth = '0px'
+                newEditor.style.maxHeight = '0px'
+                newEditor.style.minWidth = '0px'
+                newEditor.style.minHeight = '0px'
+                newEditor.style.width = '0px'
+                newEditor.style.height = '0px'
+            }
             const editor_body = document.createElement('span')
+            editor_body.style.flex = 1
             newEditor.appendChild(editor_body)
+            EDITOR_CONTAINERS[id] = newEditor
             document.getElementById('wrapper').appendChild(newEditor)
             remoteEditors[id] = new RemoteEditor(editor_body, config, extension, {
                 timeout: 0
@@ -456,6 +574,13 @@
                 theme: '<%- theme %>'
             })
             remoteEditors[id].setValue(text)
+            if(newEditor.querySelectorAll('div.CodeMirror-cursors'))
+            {
+                console.log(newEditor.querySelectorAll('div.CodeMirror-cursors'))
+                newEditor.querySelectorAll('div.CodeMirror-cursors').forEach(cursor => {
+                    cursor.classList.add('visible-cursor')
+                })
+            }
 
             const name_field = document.createElement('label')
             name_field.textContent = name
@@ -490,9 +615,10 @@
         }
 
         function deleteUser(id) {
-            const editor = document.getElementById('wrapper').querySelector(`div[data-id="${id}"]`)
+            const editor = EDITOR_CONTAINERS[id]
             if(!editor) return console.log(`Unexpected ${id} editor!`)
-            document.getElementById('wrapper').removeChild(editor)
+            editor.remove()
+            delete EDITOR_CONTAINERS[id]
             document.querySelectorAll(`span[data-id="${id}"]`).forEach(el => el.remove())
         }
 
@@ -502,8 +628,63 @@
             buildWindow.document.write(editor.editor.getValue())
         }
 
-        function disconnect() {
+        document.getElementById('confirm.btn').onclick = function() {
+            document.getElementById('confirm.modal').style.display = 'none'
             window.location.replace('/')
+        }
+
+        document.getElementById('confirm.cancel.btn').onclick = function() {
+            document.getElementById('confirm.modal').style.display = 'none'
+        }
+
+        function disconnect() {
+            document.getElementById('confirm.modal').style.display = 'flex'
+        }
+
+        window.onclick = function({ target }) {
+            if(target.id === 'settings.modal') {
+                document.getElementById('settings.modal').style.display = 'none'
+            }
+        }
+
+        function copyInvite() {
+            const textToCopy = `<%- name %> inviting you to JoinCode conference.
+
+Members count: ${peers.length + 1}
+Theme: <%- theme.replace('-', ' ') %>.
+
+Identifier: ${CONFERENCE_IDENTIFIER}
+Access Code: ${CONFERENCE_ACCESS_CODE}
+
+Link: ${window.location.href}
+
+Copyright JoinCode by Adlemas.
+
+Email to communicate: help@adlemas.com`
+
+            navigator.clipboard.writeText(textToCopy)
+                .then((res) => {
+                    console.log(res)
+                    toast("info", 'Invite copied!')
+                })
+                .catch(err => {
+                    toast("error", 'Could not copy invite!')
+                })
+        }
+
+        document.getElementById('copy.btn').onclick = copyInvite
+        document.getElementById('copy.link.btn').onclick = function() {
+            navigator.clipboard.writeText(window.location.href)
+                .then(res => {
+                    toast("info", "Invite link copied!")
+                })
+                .catch(err => {
+                    toast("error", "Could not copy invite link!")
+                })
+        }
+        
+        function invite() {
+            document.getElementById('settings.modal').style.display = 'flex'
         }
         
         function pauseUnpause() {
@@ -511,8 +692,6 @@
             else document.getElementById('pause-background').style.display = 'none'
             if(paused) paused = false
             else paused = true
-
-            console.log('pausing', name)
 
             if(paused) {
                 socket.emit('pause', {
@@ -583,6 +762,7 @@
                 document.getElementById('build.btn').onclick = buildProject
                 document.getElementById('disconnect.btn').onclick = disconnect
                 document.getElementById('pause.btn').onclick = pauseUnpause
+                document.getElementById('invite.btn').onclick = invite
 
                 document.getElementById('customer.btn').onclick = function() {
                     if(amIOwner) return
@@ -627,13 +807,14 @@
                 document.getElementById('my-editor').style.border = '2.5px solid orange'
                 socket.emit('join-room', {
                     id,
-                    name
+                    name,
+                    keyID
                 })
                 socket.on('joined-room', ({ status, roomID, userID, members, owner }) => {
                     if(status)
                     {
                         toast("success", `Joined successfully.`)
-                        if(members.length > 0) {
+                        if(owner !== socket.id) {
                             document.getElementById('customer.modal').style.display = 'flex'
                             amIOwner = false;
                         } else amIOwner = true
@@ -649,7 +830,8 @@
                                 text: cm.getValue(),
                                 name: name,
                                 id: roomID,
-                                user: userID
+                                user: userID,
+                                sendDate: Date.now()
                             })
                         })
                         editor.editor.on('cursorActivity', function (cm) {
@@ -688,7 +870,6 @@
                     addPeer(name, id)
                 })
                 socket.on('user-paused', ({ id, name }) => {
-                    console.log('user-paused', id, name)
                     if(!remoteEditors[id]) return;
                     const pause = document.body.querySelector(`.editor[data-id="${id}"]`).querySelector('.pause')
                     if(!pause) return;
@@ -696,7 +877,6 @@
                     toast("warning", `${name} paused.`)
                 })
                 socket.on('user-unpaused', ({ id, name }) => {
-                    console.log('user-unpaused', id, name)
                     if (!remoteEditors[id]) return;
                     const pause = document.body.querySelector(`div[data-id="${id}"] > .pause`)
                     if (!pause) return;
@@ -712,9 +892,12 @@
                 window.onbeforeunload = function() {
                     socket.emit('disconnect')
                 }
-                socket.on('text-change', ({ text, name, id }) => {
+                socket.on('text-change', ({ text, name, id, sendDate }) => {
                     if(!remoteEditors[id]) addUserEditor(id, name, false, text, amIOwner)
                     else {
+                        localDate = sendDate
+                        console.log("Text change:", localDate)
+                        calculateMs(Date.now())
                         if(canShowEditingToast) {
                             toast("warning", `${name} typing...`)
                             canShowEditingToast = false;

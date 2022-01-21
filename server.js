@@ -39,6 +39,7 @@ const CLIENT_ID =
   "938772614927-n65aas37mnlj47u152661c7dap5vh541.apps.googleusercontent.com";
 
 const rooms = {};
+const room_invites = {}
 
 const profile_rooms = {};
 
@@ -281,24 +282,39 @@ app.post('/sync', (req, res) => {
         const customers = doc.customers
 
         var id = uuid.v4()
+        const password = Buffer.from(uuid.v4()).toString('base64')
         while(rooms[id]) id = uuid.v4()
         rooms[id] = {
           members: [],
           owner: null,
           theme: theme,
           ownerName: name,
-          customers: customers || []
+          customers: customers || [],
+          password: password
         }
+
+        var identifier = Math.round(Math.random() * 777777777) + 111111111
+        while(room_invites[identifier]) identifier = Math.round(Math.random() * 777777777) + 111111111
+
+        var code = Math.round(Math.random() * 777777) + 111111
+
+        room_invites[identifier] = {
+          code: code,
+          urlID: id
+        }
+
         res.status(200).send({
           status: true,
-          id: id
+          id: id,
+          password,
         })
     })
 })
 
 app.get("/sync/:id", (req, res) => {
   const id = req.params.id;
-  if (!rooms[id]) res.sendFile(path.join(__dirname, "/pages/404.html"));
+  console.log(rooms[id])
+  if (!rooms[id]) return res.sendFile(path.join(__dirname, "/pages/404.html"));
   res.statusCode = 200;
   res.render(path.join(__dirname, "/pages/synchronouse.ejs"), {
     theme: rooms[id].theme,
@@ -786,12 +802,19 @@ app.post("/customer-login", ({ body: { roomName, name, password, roomID } }, res
 
 io.on("connection", (socket) => {
 
-  socket.on("join-room", ({ id, name }) => {
+  socket.on("join-room", ({ id, name, keyID }) => {
     var status = false;
     if (rooms[id]) {
+      if(!rooms[id].password) {
+        delete rooms[id];
+        return socket.emit('joined-room', {
+          status: false,
+          reason: 'no-password'
+        })
+      }
       status = true;
       var isOwner = false
-      if (rooms[id].members.length <= 0) {
+      if (keyID && rooms[id].password === keyID) {
         rooms[id].owner = socket.id;
         isOwner = true
       }
@@ -849,7 +872,7 @@ io.on("connection", (socket) => {
     });
   })
 
-  socket.on("text-change", ({ name, text, id, user }) => {
+  socket.on("text-change", ({ name, text, id, user, sendDate }) => {
     if(!rooms[id]) return;
     rooms[id].members.forEach((member, index) => {
       if(member.id !== user)
@@ -857,6 +880,7 @@ io.on("connection", (socket) => {
           text: text,
           name: name,
           id: user,
+          sendDate
         });
       else if(member.id === user) {
         rooms[id].members[index].text = text
@@ -902,6 +926,9 @@ io.on("connection", (socket) => {
           membersCount: arr.length
         });
       });
+      if(rooms[room].owner === socket.id) {
+        delete rooms[room]
+      }
     });
   });
 });

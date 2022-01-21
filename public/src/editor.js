@@ -63,7 +63,9 @@ function Editor(root, config = {
             },
             styleActiveLine: readOnly ? false : true,
             ...additional
-        })
+    })
+
+    this._root = root;
 
     if(defaultValue.length > 0)
         this.setValue(defaultValue)

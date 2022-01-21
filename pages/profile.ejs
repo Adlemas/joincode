@@ -929,8 +929,10 @@
                 })
                 .then(res => res.json())
                 .then(json => {
-                    console.log(json)
                     if(json.status === true) {
+                        sessionStorage.setItem("keyID", json.password)
+                        e.target.textContent = 'Start'
+                        e.target.style.background = 'dodgerblue'
                         window.location.pathname = '/sync/' + json.id
                     }
                     else if(json.reason === 'no-user')
