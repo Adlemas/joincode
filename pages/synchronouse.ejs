@@ -896,16 +896,17 @@ Email to communicate: help@adlemas.com`
                     if(!remoteEditors[id]) addUserEditor(id, name, false, text, amIOwner)
                     else {
                         localDate = sendDate
-                        console.log("Text change:", localDate)
                         calculateMs(Date.now())
-                        if(canShowEditingToast) {
+                        const scrollInfo = remoteEditors[id].editor.getScrollInfo()
+                        remoteEditors[id].setValue(text)
+                        remoteEditors[id].editor.scrollTo(scrollInfo.left, scrollInfo.top)
+                        if (canShowEditingToast) {
                             toast("warning", `${name} typing...`)
                             canShowEditingToast = false;
                             setTimeout(() => {
                                 canShowEditingToast = true
                             }, 5000);
                         }
-                        remoteEditors[id].setValue(text)
                     }
                 })
                 socket.on('cursor-change', ({ pos, name, id }) => {
