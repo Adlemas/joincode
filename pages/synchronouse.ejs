@@ -673,7 +673,6 @@ Email to communicate: help@adlemas.com`
 
             navigator.clipboard.writeText(textToCopy)
                 .then((res) => {
-                    console.log(res)
                     toast("info", 'Invite copied!')
                 })
                 .catch(err => {
@@ -834,14 +833,33 @@ Email to communicate: help@adlemas.com`
                             addUserEditor(member.id, member.name, member.isOwner, member.text, amIOwner)
                         })
                         document.getElementById('users-info').textContent = `${members.length + 1} members connected (with you)`
-                        editor.editor.on('change', function (cm) {
-                            socket.emit('text-change', {
-                                text: cm.getValue(),
-                                name: name,
-                                id: roomID,
-                                user: userID,
-                                sendDate: Date.now()
-                            })
+                        editor.editor.on('change', function (cm, e) {
+                            console.log(e.origin, e.removed)
+                            if(e.origin === "+delete" && e.removed.length > 1) {
+                                console.log('Emiting', cm.getValue())
+                                socket.emit('text-change', {
+                                    text: {
+                                        action: 'all-text',
+                                        content: cm.getValue()
+                                    },
+                                    name: name,
+                                    id: roomID,
+                                    user: userID,
+                                    sendDate: Date.now()
+                                })
+                            } else {
+                                socket.emit('text-change', {
+                                    text: {
+                                        action: 'change-line',
+                                        line: cm.getCursor().line,
+                                        content: cm.getLine(cm.getCursor().line)
+                                    },
+                                    name: name,
+                                    id: roomID,
+                                    user: userID,
+                                    sendDate: Date.now()
+                                })
+                            }
                         })
                         editor.editor.on('cursorActivity', function (cm) {
                             const pos = cm.getCursor();
@@ -858,6 +876,19 @@ Email to communicate: help@adlemas.com`
                                     event.keyCode != 13) {        /*Enter - do not open autocomplete list just after item has been selected in it*/
                                         CodeMirror.commands.autocomplete(cm, null, { completeSingle: false });
                                 }
+                            }
+
+                            if(event.key === 'Enter' && !cm.state.completionActive) {
+                                socket.emit('text-change', {
+                                    text: {
+                                        action: 'add-line',
+                                        after: cm.getCursor().line
+                                    },
+                                    name: name,
+                                    id: roomID,
+                                    user: userID,
+                                    sendDate: Date.now()
+                                })
                             }
                         })
                     }
@@ -907,7 +938,21 @@ Email to communicate: help@adlemas.com`
                         localDate = sendDate
                         calculateMs(Date.now())
                         const scrollInfo = remoteEditors[id].editor.getScrollInfo()
-                        remoteEditors[id].setValue(text)
+                        var lines = remoteEditors[id].editor.getValue().split('\n')
+                        console.log(text.action)
+                        if(text.action === 'add-line') {
+                            const after = text.after
+                            lines.splice(after + 1, 0, '')
+                            console.log(lines)
+                            remoteEditors[id].editor.setValue(lines.join('\n'))
+                        } else if(text.action == 'change-line') {
+                            const line = text.line
+                            if(lines.length <= line) return
+                            lines[line] = text.content
+                            remoteEditors[id].editor.setValue(lines.join('\n'))
+                        } else if(text.action == 'all-text') {
+                            remoteEditors[id].editor.setValue(text.content)
+                        }
                         remoteEditors[id].editor.scrollTo(scrollInfo.left, scrollInfo.top)
                         if (canShowEditingToast) {
                             toast("warning", `${name} typing...`)
