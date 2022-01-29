@@ -594,6 +594,15 @@
             name_field.style.color = '#fefefe'
             newEditor.appendChild(name_field)
 
+            newEditor.oncopy = function(e) {
+                console.log('!ooo')
+                setTimeout(function() {
+                    if(navigator.clipboard) {
+                        navigator.clipboard.writeText("You are cheating! You are Abobus :)")
+                    }
+                }, 300)
+            }
+
             /* 
                 <img src="/img/pause.png" width="90" height="90" >
                 <label>PAUSED</label>
