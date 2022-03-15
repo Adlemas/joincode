@@ -34,7 +34,7 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const Customer = require("./models/Customer");
 
-const PORT = 4000;
+const PORT = 80;
 const CLIENT_ID =
   "938772614927-n65aas37mnlj47u152661c7dap5vh541.apps.googleusercontent.com";
 
